@@ -1,91 +1,84 @@
-import { BrowserRouter, Routes, Route, Outlet, useLocation } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import 'leaflet/dist/leaflet.css';
-import 'leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css';
 
-// COMPONENTS
-import Header from "./components/Header";
-import Footer from "./components/Footer"; // Footer logic resides here
+// LAYOUTS
+import UserLayout from "./layouts/UserLayout";
+import AdminLayout from "./layouts/AdminLayout";
+
+// PROTECTOR
+import { BookingProvider } from "./context/BookingContext";
 
 // AUTH
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import ForgotPasswordf from "./pages/ForgotPassword";
+import Login from "./pages/auth/Login";
+import Register from "./pages/auth/Register";
+import ForgotPassword from "./pages/auth/ForgotPassword";
 
-// MAIN APP
-import Home from "./pages/Home";
-import Notifications from "./pages/Notifications";
-import Profile from "./pages/Profile";
-import Settings from "./pages/Settings";
-import BookingConfirm from "./pages/BookingConfirm";
+// USER FLOW
+import MapPage from "./pages/user/MapPage";
+import MachineDate from "./pages/user/MachineDate";
+import TimeAvailability from "./pages/user/TimeAvailability";
+import ClothType from "./pages/user/ClothType";
+import Detergent from "./pages/user/Detergent";
+import MachineDetail from "./pages/user/MachineDetail";
+import Cart from "./pages/user/Cart";
+import Checkout from "./pages/user/Checkout";
+import BookingConfirmation from "./pages/user/BookingConfirmation";
+import Reservations from "./pages/user/Reservations";
+import Notifications from "./pages/user/Notifications";
+import Profile from "./pages/user/Profile";
 
-// LAUNDRY FLOW
-import MachinesAvailability from "./pages/MachinesAvailability";
-import Bookingsuccess from "./pages/Bookingsuccess";
-import ClothType from "./pages/ClothType";
-
-import AddToCart from "./pages/AddToCart";
-import WeightSelection from "./pages/WeightSelection";
-import AvailableSlots from "./pages/AvailableSlots";
-
-// ADMIN
-import AdminHome from "./pages/Adminpages/AdminHome";
-import AddLaundryBranch from "./pages/Adminpages/AddLaundryBranch";
-import AddMachine from "./pages/Adminpages/AddMachine";
-import AddDetergent from "./pages/Adminpages/AddDetergent";
-import UpdatePrice from "./pages/Adminpages/UpdatePrice";
-import AdminProfile from "./pages/Adminpages/AdminProfile";
-import AdminRoute from "./routes/AdminRoute"; // Protected admin route
-import AdminLayout from "./pages/Adminpages/AdminLayout"; // Admin layout
-
-// Layout Component
-const MainLayout = () => {
-  return (
-    <div className="app-wrapper">
-      <Header />
-      <main className="main-content">
-        <Outlet />
-      </main>
-      <Footer />
-    </div>
-  );
-};
+// ADMIN PAGES
+import Dashboard from "./pages/admin/Dashboard";
+import BranchOverview from "./pages/admin/BranchOverview";
+import AddLaundry from "./pages/admin/AddLaundry";
+import AddMachine from "./pages/admin/AddMachine";
+import MachineManagement from "./pages/admin/MachineManagement";
+import BookingManagement from "./pages/admin/BookingManagement";
+import AdminReservations from "./pages/admin/AdminReservations";
+import AdminNotifications from "./pages/admin/AdminNotifications";
 
 export default function App() {
+  console.log("App: Rendering...");
   return (
-    <Routes>
-      {/* AUTH ROUTES (No Header/Footer) */}
-      <Route path="/" element={<Login />} />
-      <Route path="/register" element={<Register />} />
-      <Route path="/forgot-password" element={<ForgotPasswordf />} />
+    <BookingProvider>
+      <Routes>
+        {/* Auth Routes */}
+        <Route path="/" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/ForgotPassword" element={<ForgotPassword />} />
+        
+        {/* User Protected Flow */}
+        <Route element={<UserLayout />}>
+          <Route path="/home" element={<MapPage />} />
+          <Route path="/machine-date" element={<MachineDate />} />
+          <Route path="/time-availability" element={<TimeAvailability />} />
+          <Route path="/cloth-type" element={<ClothType />} />
+          <Route path="/detergent" element={<Detergent />} />
+          <Route path="/machine-detail" element={<MachineDetail />} />
+          <Route path="/cart" element={<Cart />} />
+          <Route path="/checkout" element={<Checkout />} />
+          <Route path="/booking-confirmation" element={<BookingConfirmation />} />
+          <Route path="/reservations" element={<Reservations />} />
+          <Route path="/notifications" element={<Notifications />} />
+          <Route path="/profile" element={<Profile />} />
+        </Route>
 
-      {/* MAIN APP ROUTES (With Header/Footer) */}
-      <Route element={<MainLayout />}>
-        <Route path="/home" element={<Home />} />
-        <Route path="/notifications" element={<Notifications />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/settings" element={<Settings />} />
-        <Route path="/confirm" element={<BookingConfirm />} />
+        {/* Admin Protected Flow */}
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route index element={<Dashboard />} />
+          <Route path="dashboard" element={<Dashboard />} />
+          <Route path="branch-overview" element={<BranchOverview />} />
+          <Route path="add-laundry" element={<AddLaundry />} />
+          <Route path="add-machine" element={<AddMachine />} />
+          <Route path="machines" element={<MachineManagement />} />
+          <Route path="bookings" element={<BookingManagement />} />
+          <Route path="reservations" element={<AdminReservations />} />
+          <Route path="notifications" element={<AdminNotifications />} />
+        </Route>
 
-        {/* LAUNDRY FLOW */}
-        <Route path="/available-machines" element={<MachinesAvailability />} />
-        <Route path="/success" element={<Bookingsuccess />} />
-        <Route path="/weight" element={<WeightSelection />} />
-        <Route path="/cloth-type" element={<ClothType />} />
-        <Route path="/available-slots" element={<AvailableSlots />} />
-
-        <Route path="/cart" element={<AddToCart />} />
-
-      </Route>
-
-      {/* ADMIN ROUTES (With AdminHeader/AdminFooter) */}
-      <Route path="/admin" element={<AdminLayout />}>
-        <Route index element={<AdminHome />} />
-        <Route path="add-branch" element={<AddLaundryBranch />} />
-        <Route path="add-machine" element={<AddMachine />} />
-        <Route path="add-detergent" element={<AddDetergent />} />
-        <Route path="update-price" element={<UpdatePrice />} />
-        <Route path="profile" element={<AdminProfile />} />
-      </Route>
-    </Routes>
+        {/* Fallback */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </BookingProvider>
   );
 }
