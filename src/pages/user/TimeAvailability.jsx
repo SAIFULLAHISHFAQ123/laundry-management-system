@@ -27,7 +27,7 @@ export default function TimeAvailability() {
         return Array(bookingData.selectedMachines?.length || 0).fill().map(() => []);
     });
 
-    const [apiDuration, setApiDuration] = useState(null);
+    const [durationMins, setDurationMins] = useState(45);
     const [isLoading, setIsLoading] = useState(true);
 
     const totalMachinesSelected = bookingData.selectedMachines ? bookingData.selectedMachines.length : 0;
@@ -35,14 +35,18 @@ export default function TimeAvailability() {
 
     useEffect(() => {
         const fetchDuration = async () => {
+            if (bookingData.clothType?.durationMinutes) {
+                setDurationMins(parseInt(bookingData.clothType.durationMinutes));
+                setIsLoading(false);
+                return;
+            }
+
             try {
                 const res = await fetch('https://localhost:7208/api/machineprograms');
                 const data = await res.json();
-                
-                // Find duration for selected program name
                 const programInfo = data.find(p => p.programName === bookingData.clothType?.programName);
                 if (programInfo) {
-                    setApiDuration(programInfo.durationMinutes);
+                    setDurationMins(programInfo.durationMinutes);
                 }
             } catch (err) {
                 console.error("Duration fetch failed", err);
@@ -51,14 +55,8 @@ export default function TimeAvailability() {
             }
         };
 
-        if (bookingData.clothType?.programName) {
-            fetchDuration();
-        } else {
-            setIsLoading(false);
-        }
+        fetchDuration();
     }, [bookingData.clothType]);
-
-    const durationMins = apiDuration || parseInt(bookingData.clothType?.durationMinutes || '45');
 
     const toggleSlot = (machineIndex, slot) => {
         const newSelectedSlots = [...selectedSlots];

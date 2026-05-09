@@ -129,7 +129,7 @@ export default function ClothType() {
                                         {p.programName}
                                     </h3>
                                     <p className="text-muted" style={{ fontSize: '0.85rem', marginBottom: '1.5rem' }}>
-                                        {p.durationMinutes || '45'} Mins • {p.temperature || 'Warm'}
+                                        {p.durationMinutes || '45'} Mins
                                     </p>
                                     <div style={{ 
                                         fontSize: '1.25rem', 

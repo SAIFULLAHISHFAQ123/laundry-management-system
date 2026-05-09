@@ -6,23 +6,23 @@
   --primary-light: #f0f9ff;
   --secondary: #6366f1;
   --accent: #f59e0b;
-  
+
   --bg-white: #ffffff;
   --bg-light: #f8fafc;
   --bg-glass: rgba(255, 255, 255, 0.8);
-  
+
   --text-main: #0f172a;
   --text-muted: #64748b;
   --text-light: #94a3b8;
-  
+
   --border: #e2e8f0;
   --border-focus: #0ea5e9;
-  
+
   --glass-blur: blur(12px);
-  --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
-  --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
-  --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
-  --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.1);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
 }
 
 body {
@@ -59,7 +59,8 @@ body {
   transition: all 0.3s;
 }
 
-.user-nav-link:hover, .user-nav-link.active {
+.user-nav-link:hover,
+.user-nav-link.active {
   color: var(--primary);
 }
 
@@ -131,7 +132,8 @@ body {
   color: var(--primary);
 }
 
-.filter-toggle-btn:hover, .filter-toggle-btn.active {
+.filter-toggle-btn:hover,
+.filter-toggle-btn.active {
   background: var(--primary);
   color: white;
   border-color: var(--primary);
@@ -155,8 +157,13 @@ body {
 }
 
 @keyframes slideInLeft {
-  from { transform: translateX(-100%); }
-  to { transform: translateX(0); }
+  from {
+    transform: translateX(-100%);
+  }
+
+  to {
+    transform: translateX(0);
+  }
 }
 
 /* Selected Branch Card */
@@ -182,8 +189,13 @@ body {
   background: var(--bg-light);
 }
 
-.washer-pill { border-left: 4px solid var(--primary); }
-.dryer-pill { border-left: 4px solid var(--secondary); }
+.washer-pill {
+  border-left: 4px solid var(--primary);
+}
+
+.dryer-pill {
+  border-left: 4px solid var(--secondary);
+}
 
 /* Map Legend */
 .map-legend {
@@ -199,8 +211,13 @@ body {
 }
 
 @media (max-width: 1024px) {
-  .map-sidebar { width: 320px; }
-  .map-legend { display: none; }
+  .map-sidebar {
+    width: 320px;
+  }
+
+  .map-legend {
+    display: none;
+  }
 }
 
 @media (max-width: 768px) {
@@ -210,22 +227,22 @@ body {
     height: 100%;
     top: 0;
   }
-  
+
   .selected-branch-card {
     bottom: 0;
     width: 100%;
     border-radius: 24px 24px 0 0;
     padding: 1.5rem;
   }
-  
+
   .map-search-container {
     top: 10px;
   }
-  
+
   .search-input-wrapper {
     height: 48px;
   }
-  
+
   .filter-toggle-btn {
     width: 48px;
     height: 48px;
@@ -323,8 +340,15 @@ body {
 }
 
 @keyframes pulseLoop {
-  0% { transform: scale(0.5); opacity: 1; }
-  100% { transform: scale(2); opacity: 0; }
+  0% {
+    transform: scale(0.5);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(2);
+    opacity: 0;
+  }
 }
 
 /* Time Slot Styling */
@@ -368,8 +392,15 @@ body {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Scrollbar Styling */
@@ -388,4 +419,379 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
+}
+
+/* =========================================
+   GLOBAL THEME
+========================================= */
+
+:root {
+  --primary: #0ea5e9;
+  --primary-dark: #0284c7;
+  --primary-light: #e0f2fe;
+
+  --success: #22c55e;
+  --success-light: #dcfce7;
+
+  --danger: #ef4444;
+
+  --bg-main: #f8fbff;
+  --bg-white: #ffffff;
+  --bg-light: #f1f7fb;
+
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+
+  --border: #dbeafe;
+
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 10px 25px rgba(14, 165, 233, 0.08);
+  --shadow-lg: 0 15px 40px rgba(14, 165, 233, 0.15);
+
+  --radius: 20px;
+
+  --transition: all 0.3s ease;
+}
+
+/* =========================================
+   BODY
+========================================= */
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: "Inter", sans-serif;
+  background: var(--bg-main);
+  color: var(--text-main);
+}
+
+/* =========================================
+   CONTAINER
+========================================= */
+
+.container {
+  width: 100%;
+  padding: 2rem 1rem;
+  box-sizing: border-box;
+}
+
+/* =========================================
+   CARD
+========================================= */
+
+.card {
+  background: var(--bg-white);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border);
+  transition: var(--transition);
+}
+
+.card:hover {
+  box-shadow: var(--shadow-lg);
+}
+
+/* =========================================
+   FLEX UTILITIES
+========================================= */
+
+.flex-between {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.text-muted {
+  color: var(--text-muted);
+}
+
+/* =========================================
+   BUTTONS
+========================================= */
+
+.btn {
+  border: none;
+  outline: none;
+  cursor: pointer;
+  border-radius: 14px;
+  font-weight: 700;
+  transition: var(--transition);
+  font-size: 0.95rem;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg,
+      var(--primary),
+      var(--primary-dark));
+  color: white;
+  box-shadow: 0 8px 20px rgba(14, 165, 233, 0.25);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 25px rgba(14, 165, 233, 0.35);
+}
+
+.btn-outline {
+  background: white;
+  border: 2px solid var(--border);
+  color: var(--text-main);
+}
+
+.btn-outline:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  transform: translateY(-2px);
+}
+
+/* =========================================
+   BADGES
+========================================= */
+
+.badge {
+  padding: 0.45rem 1rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+/* =========================================
+   SELECTION GRID
+========================================= */
+
+.selection-grid {
+  display: grid;
+}
+
+.selection-card {
+  background: white;
+  border-radius: 22px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  border: 2px solid transparent;
+  box-shadow: var(--shadow-sm);
+}
+
+.selection-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg,
+      rgba(14, 165, 233, 0.05),
+      rgba(14, 165, 233, 0));
+  opacity: 0;
+  transition: var(--transition);
+}
+
+.selection-card:hover::before {
+  opacity: 1;
+}
+
+.selection-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-lg);
+}
+
+.selection-card.selected {
+  border-color: var(--primary);
+  background: linear-gradient(to bottom,
+      #f0f9ff,
+      #ffffff);
+  box-shadow: 0 12px 30px rgba(14, 165, 233, 0.2);
+}
+
+/* =========================================
+   SLOT GRID
+========================================= */
+
+.slot-grid {
+  display: grid;
+}
+
+/* =========================================
+   TIME SLOT BUTTONS
+========================================= */
+
+.slot {
+  padding: 1rem 0.5rem;
+  text-align: center;
+  border-radius: 14px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: var(--transition);
+  user-select: none;
+
+  background: var(--success-light);
+  color: #166534;
+  border: 2px solid #bbf7d0;
+}
+
+.slot:hover {
+  transform: translateY(-2px);
+  background: #bbf7d0;
+  box-shadow: 0 6px 15px rgba(34, 197, 94, 0.15);
+}
+
+/* =========================================
+   SELECTED SLOT
+========================================= */
+
+.slot.selected {
+  background: linear-gradient(135deg,
+      var(--primary),
+      var(--primary-dark));
+  color: white;
+  border-color: transparent;
+  box-shadow: 0 10px 20px rgba(14, 165, 233, 0.3);
+}
+
+/* =========================================
+   BOOKED / DISABLED SLOT
+========================================= */
+
+.slot.booked {
+  background: #e5e7eb;
+  color: #94a3b8;
+  border: 2px solid #d1d5db;
+  cursor: not-allowed;
+  pointer-events: none;
+  opacity: 0.8;
+  text-decoration: line-through;
+}
+
+.slot.booked:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+/* =========================================
+   BRAND ICON
+========================================= */
+
+.brand-icon {
+  width: 70px;
+  height: 70px;
+  border-radius: 20px;
+  background: linear-gradient(135deg,
+      var(--primary),
+      var(--primary-dark));
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  font-weight: 900;
+  box-shadow: var(--shadow-md);
+}
+
+/* =========================================
+   ANIMATIONS
+========================================= */
+
+.animate-in {
+  animation: fadeSlide 0.5s ease;
+}
+
+@keyframes fadeSlide {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-pulse {
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  50% {
+    transform: scale(1.05);
+    opacity: 0.85;
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* =========================================
+   RESPONSIVE DESIGN
+========================================= */
+
+@media (max-width: 992px) {
+  .selection-grid {
+    grid-template-columns: repeat(auto-fill,
+        minmax(220px, 1fr)) !important;
+  }
+
+  .slot-grid {
+    grid-template-columns: repeat(auto-fill,
+        minmax(90px, 1fr)) !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+
+  .card {
+    padding: 1.5rem !important;
+    border-radius: 18px;
+  }
+
+  .flex-between {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: stretch;
+  }
+
+  .selection-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .slot-grid {
+    grid-template-columns: repeat(auto-fill,
+        minmax(80px, 1fr)) !important;
+  }
+
+  h1 {
+    font-size: 2rem !important;
+  }
+
+  .btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .slot {
+    padding: 0.8rem 0.3rem;
+    font-size: 0.75rem;
+  }
+
+  .selection-card {
+    padding: 1.5rem 1rem !important;
+  }
+
+  h1 {
+    font-size: 1.7rem !important;
+  }
 }
