@@ -32,6 +32,8 @@ export default function Login() {
       if (email === hardcodedAdmin.email && password === hardcodedAdmin.password) {
         localStorage.setItem("token", "hardcoded-admin-token");
         localStorage.setItem("role", "Admin");
+        localStorage.setItem("user_email", email);
+        localStorage.setItem("user_name", "System Admin");
         navigate("/admin");
         return;
       }
@@ -39,6 +41,8 @@ export default function Login() {
       if (email === hardcodedUser.email && password === hardcodedUser.password) {
         localStorage.setItem("token", "hardcoded-user-token");
         localStorage.setItem("role", "User");
+        localStorage.setItem("user_email", email);
+        localStorage.setItem("user_name", "Saifullah Ishfaq");
         navigate("/home");
         return;
       }
@@ -64,6 +68,8 @@ export default function Login() {
 
       localStorage.setItem("token", data.token);
       localStorage.setItem("role", data.role);
+      localStorage.setItem("user_email", data.email || email);
+      localStorage.setItem("user_name", data.name || "Standard User");
 
       if (data.role === "Admin") navigate("/admin");
       else navigate("/home");

@@ -85,6 +85,84 @@ export const getBranches = () => {
     return stored;
 };
 
+const LAUNDRY_API_URL = 'https://localhost:7208/api/Laundry';
+const MACHINES_API_URL = 'https://localhost:7208/api/machines';
+
+const getMachineLaundryId = (machine) => machine.laundryId ?? machine.branchId ?? machine.laundry?.laundryId;
+
+const isMachineAvailable = (machine) => {
+    const status = String(machine.status ?? 'Available').toLowerCase();
+    return ['available', 'active', 'free'].includes(status);
+};
+
+const getDefaultPrice = (capacity) => {
+    if (capacity === '5kg') return 200;
+    if (capacity === '7kg') return 300;
+    if (capacity === '10kg') return 500;
+    if (capacity === '15kg') return 700;
+    return 300;
+};
+
+export const normalizeMachine = (machine) => ({
+    ...machine,
+    id: machine.id ?? machine.machineId,
+    machineId: machine.machineId ?? machine.id,
+    branchId: getMachineLaundryId(machine),
+    laundryId: getMachineLaundryId(machine),
+    machineType: machine.machineType ?? machine.type ?? 'Washer',
+    capacity: machine.capacity ?? '7kg',
+    status: isMachineAvailable(machine) ? 'Available' : (machine.status ?? 'Busy'),
+    price: machine.price ?? getDefaultPrice(machine.capacity)
+});
+
+export const normalizeBranch = (laundry, machines = []) => {
+    const id = laundry.id ?? laundry.laundryId;
+    const laundryMachines = machines.filter(machine => String(getMachineLaundryId(machine)) === String(id));
+    const availableWasher = laundryMachines.filter(machine => isMachineAvailable(machine) && ['Washer', 'Both'].includes(machine.machineType)).length;
+    const availableDryer = laundryMachines.filter(machine => isMachineAvailable(machine) && ['Dryer', 'Both'].includes(machine.machineType)).length;
+    const busyWasher = laundryMachines.filter(machine => !isMachineAvailable(machine) && ['Washer', 'Both'].includes(machine.machineType)).length;
+    const busyDryer = laundryMachines.filter(machine => !isMachineAvailable(machine) && ['Dryer', 'Both'].includes(machine.machineType)).length;
+    const availableTotal = availableWasher + availableDryer;
+    const machineTotal = laundryMachines.length;
+
+    return {
+        ...laundry,
+        id,
+        laundryId: id,
+        name: laundry.name ?? 'Laundry',
+        city: laundry.city ?? '',
+        address: laundry.address ?? '',
+        contact: laundry.contact ?? laundry.contactNumber ?? '',
+        contactNumber: laundry.contactNumber ?? laundry.contact ?? '',
+        position: [Number(laundry.latitude), Number(laundry.longitude)],
+        rating: Number(laundry.rating ?? 4.5),
+        basePrice: Number(laundry.basePrice ?? 500),
+        status: machineTotal === 0 || availableTotal > 0 ? 'Green' : 'Red',
+        machines: {
+            available: { washer: availableWasher, dryer: availableDryer },
+            busy: { washer: busyWasher, dryer: busyDryer }
+        }
+    };
+};
+
+export const fetchBranches = async () => {
+    const [laundryRes, machinesRes] = await Promise.all([
+        fetch(LAUNDRY_API_URL),
+        fetch(MACHINES_API_URL)
+    ]);
+
+    if (!laundryRes.ok) throw new Error('Failed to fetch laundries');
+    if (!machinesRes.ok) throw new Error('Failed to fetch machines');
+
+    const laundries = await laundryRes.json();
+    const machines = await machinesRes.json();
+    const normalizedMachines = Array.isArray(machines) ? machines.map(normalizeMachine) : [];
+
+    return (Array.isArray(laundries) ? laundries : [])
+        .map(laundry => normalizeBranch(laundry, normalizedMachines))
+        .filter(branch => Number.isFinite(branch.position[0]) && Number.isFinite(branch.position[1]));
+};
+
 export const haversineDistance = (coords1, coords2) => {
     if (!Array.isArray(coords1) || !Array.isArray(coords2) || coords1.length < 2 || coords2.length < 2) {
         return Infinity; // Return a large distance if coordinates are invalid

@@ -2,131 +2,159 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useBooking } from '../../context/BookingContext';
 
-const CLOTH_TYPES = [
-  { 
-    id: 'cotton', 
-    type: 'Cotton', 
-    price: 150, 
-    timeLimit: '45 mins', 
-    icon: '👕',
-    desc: 'Standard wash for everyday cotton items like t-shirts and jeans.',
-    features: ['Standard Wash', '40°C Temp', '800 RPM Spin']
-  },
-  { 
-    id: 'wool', 
-    type: 'Wool', 
-    price: 250, 
-    timeLimit: '50 mins', 
-    icon: '🧣',
-    desc: 'Gentle low-temperature wash designed for delicates and wool sweaters.',
-    features: ['Delicate Wash', 'Cold/30°C Temp', '400 RPM Spin']
-  },
-  { 
-    id: 'white', 
-    type: 'White', 
-    price: 200, 
-    timeLimit: '60 mins', 
-    icon: '👔',
-    desc: 'Intensive cycle with pre-wash to maintain the brightness of white fabrics.',
-    features: ['Pre-Wash Included', '60°C Temp', '1200 RPM Spin']
-  },
-  { 
-    id: 'blanket', 
-    type: 'Blanket', 
-    price: 350, 
-    timeLimit: '90 mins', 
-    icon: '🛌',
-    desc: 'Heavy-duty deep cleaning cycle suited for large blankets and comforters.',
-    features: ['Extra Rinse', 'Deep Clean', 'Max Load Capacity']
-  }
-];
-
 export default function ClothType() {
+
   const navigate = useNavigate();
   const { bookingData, updateBooking } = useBooking();
 
+  const [programs, setPrograms] = useState([]);
+  const [selectedProgram, setSelectedProgram] = useState(
+    bookingData.clothType || null
+  );
+
+  // LOAD PROGRAMS FROM API
   useEffect(() => {
-    if (!bookingData.timeSlots || bookingData.timeSlots.length === 0) {
-      navigate('/time-availability');
+
+    fetchPrograms();
+
+    if (!bookingData.branch) {
+      navigate('/home');
     }
-  }, [bookingData, navigate]);
 
-  const [selectedCloth, setSelectedCloth] = useState(bookingData.clothType || null);
-  const [numLoads, setNumLoads] = useState(bookingData.numLoads || 1);
+  }, []);
 
+  const fetchPrograms = async () => {
+
+    try {
+
+      const res = await fetch(
+        'https://localhost:7208/api/program1'
+      );
+
+      const data = await res.json();
+
+      setPrograms(data);
+
+    }
+    catch (error) {
+
+      console.error("Failed to load programs", error);
+    }
+  };
+
+  // SELECT PROGRAM
+  const handleSelect = (program) => {
+
+    setSelectedProgram(program);
+  };
+
+  // NEXT STEP
   const handleNext = () => {
-    if (!selectedCloth) {
+
+    if (!selectedProgram) {
       alert('Please select a washing program.');
       return;
     }
-    updateBooking('clothType', selectedCloth);
-    updateBooking('numLoads', numLoads);
-    navigate('/detergent'); // Step 4
+
+    updateBooking('clothType', selectedProgram);
+
+    navigate('/machine-detail');
   };
 
-  return (
-    <div className="container animate-in" style={{ maxWidth: '800px', margin: 'auto' }}>
-      {/* Selection context */}
-      <div style={{ backgroundColor: 'var(--primary-light)', borderRadius: 'var(--radius)', padding: '0.75rem 1.25rem', marginBottom: '1.5rem', display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-        <div style={{ flex: 1 }}>
-          <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--primary-dark)', fontWeight: '600', textTransform: 'uppercase' }}>Selected Slots</p>
-          <strong style={{ color: 'var(--primary)', fontSize: '0.95rem' }}>{bookingData.date} @ {bookingData.timeSlots?.map(s => s.time).join(', ')}</strong>
-        </div>
-        <div style={{ textAlign: 'right' }}>
-            <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Subtotal</p>
-            <strong style={{ fontSize: '0.95rem' }}>PKR {bookingData.timeSlots?.reduce((sum, s) => sum + s.price, 0)}</strong>
-        </div>
-      </div>
-
-      <h1 style={{ color: 'var(--primary)', marginBottom: '0.5rem', textAlign: 'center' }}>Step 3: Cloth Type</h1>
-      <p style={{ textAlign: 'center', color: 'var(--text-muted)', marginBottom: '2rem', fontSize: '0.95rem' }}>Select a wash program and load count.</p>
-
-      <div className="card">
-
-        <h3 style={{ marginBottom: '1.25rem' }}>Washing Programs</h3>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1rem', marginBottom: '2rem' }}>
-          {CLOTH_TYPES.map((cloth) => {
-            const isSelected = selectedCloth?.id === cloth.id;
-            return (
-              <div
-                key={cloth.id}
-                onClick={() => setSelectedCloth(cloth)}
-                style={{
-                  border: `2px solid ${isSelected ? 'var(--primary)' : 'var(--border)'}`,
-                  padding: '1.25rem',
-                  borderRadius: 'var(--radius)',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  gap: '1.25rem',
-                  alignItems: 'center',
-                  backgroundColor: isSelected ? 'var(--primary-light)' : 'var(--bg-white)',
-                  transition: 'all 0.2s',
-                  transform: isSelected ? 'translateY(-2px)' : 'none',
-                  boxShadow: isSelected ? 'var(--shadow-md)' : 'none'
-                }}
-              >
-                <div style={{ fontSize: '2.5rem', width: '60px', height: '60px', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: isSelected ? 'var(--bg-white)' : 'var(--bg-light)', borderRadius: '12px' }}>
-                  {cloth.icon}
+    return (
+        <div className="container animate-in" style={{ maxWidth: '900px', margin: 'auto', padding: '2rem 1rem' }}>
+            {/* Header Section */}
+            <div className="text-center mb-12">
+                <div style={{ 
+                    display: 'inline-flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'center', 
+                    width: '64px', 
+                    height: '64px', 
+                    background: 'var(--primary-light)', 
+                    borderRadius: '50%', 
+                    color: 'var(--primary)', 
+                    fontSize: '1.5rem',
+                    marginBottom: '1.5rem',
+                    boxShadow: '0 8px 16px rgba(14, 165, 233, 0.1)'
+                }}>
+                    🧼
                 </div>
-                
-                <div style={{ flex: 1 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.25rem' }}>
-                    <h3 style={{ margin: 0, color: isSelected ? 'var(--primary)' : 'var(--text-main)', fontSize: '1.1rem' }}>{cloth.type}</h3>
-                  </div>
-                  <p className="text-muted" style={{ margin: '0 0 0.75rem 0', fontSize: '0.85rem', lineHeight: '1.4' }}>{cloth.desc}</p>
+                <h1 style={{ fontSize: '2.5rem', fontWeight: '800', color: 'var(--text-main)', marginBottom: '0.5rem' }}>Select Wash Program</h1>
+                <p className="text-muted" style={{ maxWidth: '500px', margin: '0 auto' }}>Choose the perfect treatment for your garments based on fabric type and soil level.</p>
+            </div>
+
+            {/* Selection Grid */}
+            <div className="card" style={{ padding: '2.5rem' }}>
+                <div className="flex-between mb-8">
+                    <h3 style={{ fontSize: '1.25rem', fontWeight: '800' }}>Available Treatments</h3>
+                    <span className="badge" style={{ backgroundColor: 'var(--bg-light)', color: 'var(--text-muted)' }}>{programs.length} Programs</span>
                 </div>
-              </div>
-            );
-          })}
-        </div>
 
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <button className="btn btn-outline" onClick={() => navigate('/time-availability')}>← Back</button>
-          
+                <div className="selection-grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '1.5rem' }}>
+                    {programs.length === 0 ? (
+                        <div className="text-center p-10 w-full" style={{ gridColumn: '1/-1' }}>
+                            <p className="text-muted">No programs available at this time.</p>
+                        </div>
+                    ) : (
+                        programs.map((p) => {
+                            const isSelected = selectedProgram?.programId === p.programId;
+                            return (
+                                <div
+                                    key={p.programId}
+                                    onClick={() => handleSelect(p)}
+                                    className={`selection-card ${isSelected ? 'selected' : ''}`}
+                                    style={{ 
+                                        padding: '2rem 1.5rem', 
+                                        display: 'flex', 
+                                        flexDirection: 'column', 
+                                        alignItems: 'center', 
+                                        textAlign: 'center',
+                                        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                                        border: isSelected ? '2px solid var(--primary)' : '2px solid transparent',
+                                        background: isSelected ? 'var(--primary-light)' : 'var(--bg-white)'
+                                    }}
+                                >
+                                    <div style={{ 
+                                        fontSize: '2.5rem', 
+                                        marginBottom: '1.25rem',
+                                        transform: isSelected ? 'scale(1.1)' : 'scale(1)',
+                                        transition: 'transform 0.3s ease'
+                                    }}>
+                                        {p.programName.toLowerCase().includes('delicate') ? '🧶' : 
+                                         p.programName.toLowerCase().includes('heavy') ? '🧤' : 
+                                         p.programName.toLowerCase().includes('quick') ? '⚡' : '👕'}
+                                    </div>
+                                    <h3 style={{ fontSize: '1.1rem', fontWeight: '800', marginBottom: '0.5rem', color: isSelected ? 'var(--primary-dark)' : 'var(--text-main)' }}>
+                                        {p.programName}
+                                    </h3>
+                                    <p className="text-muted" style={{ fontSize: '0.85rem', marginBottom: '1.5rem' }}>
+                                        {p.durationMinutes || '45'} Mins • {p.temperature || 'Warm'}
+                                    </p>
+                                    <div style={{ 
+                                        fontSize: '1.25rem', 
+                                        fontWeight: '800', 
+                                        color: isSelected ? 'var(--primary)' : 'var(--text-main)',
+                                        marginTop: 'auto'
+                                    }}>
+                                        PKR {p.programPrice}
+                                    </div>
+                                </div>
+                            );
+                        })
+                    )}
+                </div>
 
-          <button className="btn btn-primary" onClick={handleNext}>Next: Detergent →</button>
+                {/* Footer Actions */}
+                <div className="flex-between" style={{ marginTop: '3rem', paddingTop: '2rem', borderTop: '2px dashed var(--border)' }}>
+                    <button className="btn btn-outline" onClick={() => navigate('/home')} style={{ padding: '0.75rem 2rem' }}>
+                        ← Back to Map
+                    </button>
+                    <button className="btn btn-primary" onClick={handleNext} style={{ padding: '0.75rem 2.5rem', fontSize: '1.1rem' }}>
+                        Next Step: Select Machines →
+                    </button>
+                </div>
+            </div>
         </div>
-      </div>
-    </div>
-  );
+    );
 }

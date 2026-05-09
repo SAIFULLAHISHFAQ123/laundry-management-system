@@ -18,7 +18,7 @@ export default function MachineDate() {
     const handleNext = () => {
         updateBooking('machineType', machineType);
         updateBooking('date', date);
-        navigate('/time-availability');
+        navigate('/cloth-type');
     };
 
     return (
@@ -37,9 +37,9 @@ export default function MachineDate() {
             <div className="card">
                 <div className="mb-8">
                     <h3 className="mb-4">Select Machine Type</h3>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem' }}>
-                        {['Washer', 'Dryer', 'Both'].map(type => (
-                            <div 
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem' }}>
+                        {['Washer', 'Dryer'].map(type => (
+                            <div
                                 key={type}
                                 onClick={() => setMachineType(type)}
                                 style={{
@@ -53,10 +53,10 @@ export default function MachineDate() {
                                     boxShadow: machineType === type ? 'var(--shadow-md)' : 'none'
                                 }}
                             >
-                                <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>{type === 'Washer' ? '🫧' : type === 'Dryer' ? '💨' : '🫧+💨'}</div>
-                                <strong style={{ fontSize: '1.1rem', color: machineType === type ? 'var(--primary)' : 'var(--text-main)' }}>{type}</strong>
-                                <p style={{ margin: '0.25rem 0 0', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                                    {type === 'Washer' ? 'Wash clothes' : type === 'Dryer' ? 'Dry clothes' : 'Wash & Dry both'}
+                                <div style={{ fontSize: '2.5rem', marginBottom: '0.75rem' }}>{type === 'Washer' ? '🫧' : '💨'}</div>
+                                <strong style={{ fontSize: '1.2rem', color: machineType === type ? 'var(--primary)' : 'var(--text-main)' }}>{type}</strong>
+                                <p style={{ margin: '0.25rem 0 0', fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+                                    {type === 'Washer' ? 'Wash your clothes' : 'Dry your clothes'}
                                 </p>
                             </div>
                         ))}
@@ -65,9 +65,9 @@ export default function MachineDate() {
 
                 <div className="mb-8">
                     <h3 className="mb-4">Select Date</h3>
-                    <input 
-                        type="date" 
-                        className="input-control" 
+                    <input
+                        type="date"
+                        className="input-control"
                         min={new Date().toISOString().split('T')[0]}
                         value={date}
                         onChange={(e) => setDate(e.target.value)}
@@ -76,8 +76,8 @@ export default function MachineDate() {
                 </div>
 
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1rem' }}>
-                    <button className="btn btn-outline" onClick={() => navigate('/home')}>← Change Launcher</button>
-                    <button className="btn btn-primary" style={{ padding: '0.8rem 2rem' }} onClick={handleNext}>Check Availability →</button>
+                    <button className="btn btn-outline" onClick={() => navigate('/home')}>← Change Laundry</button>
+                    <button className="btn btn-primary" style={{ padding: '0.8rem 2rem' }} onClick={handleNext}>SELECT CLOTH TYPE →</button>
                 </div>
             </div>
         </div>

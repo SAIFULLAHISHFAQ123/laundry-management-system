@@ -3,7 +3,7 @@ import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import { useNavigate } from 'react-router-dom';
 import { useBooking } from '../../context/BookingContext';
-import { getBranches, haversineDistance } from '../../services/MapService';
+import { fetchBranches, getBranches, haversineDistance } from '../../services/MapService';
 
 // Import CSS
 import 'leaflet/dist/leaflet.css';
@@ -68,6 +68,8 @@ export default function MapPage() {
     const [filteredBranches, setFilteredBranches] = useState([]);
     const [selectedBranch, setSelectedBranch] = useState(null);
     const [userLoc, setUserLoc] = useState([33.6844, 73.0479]); // Islamabad default
+    const [isLoading, setIsLoading] = useState(true);
+    const [loadError, setLoadError] = useState('');
     
     // UI State
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -79,11 +81,51 @@ export default function MapPage() {
     const [minRating, setMinRating] = useState(0);
     const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
 
-    // Initialize Branches
+    // Initialize Branches & Location
     useEffect(() => {
-        const data = getBranches();
-        setBranches(data);
-        setFilteredBranches(data);
+        let isMounted = true;
+
+        const loadBranches = async () => {
+            setIsLoading(true);
+            setLoadError('');
+
+            try {
+                const data = await fetchBranches();
+                if (!isMounted) return;
+                setBranches(data);
+                setFilteredBranches(data);
+            } catch (error) {
+                console.error('Failed to load laundries from API:', error);
+                if (!isMounted) return;
+
+                const fallback = getBranches();
+                setBranches(fallback);
+                setFilteredBranches(fallback);
+                setLoadError('Could not connect to the database. Showing saved sample laundries.');
+            } finally {
+                if (isMounted) setIsLoading(false);
+            }
+        };
+
+        loadBranches();
+
+        // Track live location
+        let watchId;
+        if (navigator.geolocation) {
+            watchId = navigator.geolocation.watchPosition(
+                (pos) => {
+                    const newLoc = [pos.coords.latitude, pos.coords.longitude];
+                    setUserLoc(newLoc);
+                },
+                (err) => console.log("Geolocation error or denied:", err),
+                { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+            );
+        }
+
+        return () => {
+            isMounted = false;
+            if (watchId) navigator.geolocation.clearWatch(watchId);
+        };
     }, []);
 
     // Filter Logic
@@ -103,7 +145,7 @@ export default function MapPage() {
 
         // 3. Machine Type Filter
         if (machineType !== 'Both') {
-            results = results.filter(b => (machineType === 'Washer' ? b.machines.available.washer > 0 : b.machines.available.dryer > 0));
+            results = results.filter(b => (machineType === 'Washer' ? b.machines?.available?.washer > 0 : b.machines?.available?.dryer > 0));
         }
 
         // 4. Rating Filter
@@ -181,7 +223,22 @@ export default function MapPage() {
                 >
                     ⚙️
                 </button>
+
+                <button 
+                    onClick={handleLocate}
+                    className="filter-toggle-btn"
+                    title="Center on My Location"
+                    style={{ backgroundColor: 'white', color: 'var(--primary)' }}
+                >
+                    🎯
+                </button>
             </div>
+
+            {loadError && (
+                <div className="map-error-banner">
+                    {loadError}
+                </div>
+            )}
 
             {/* Sidebar Overlay */}
             {isSidebarOpen && (
@@ -210,14 +267,14 @@ export default function MapPage() {
                     <div className="filter-group mb-8">
                         <label className="text-muted" style={{ display: 'block', fontWeight: '700', marginBottom: '1rem', fontSize: '0.85rem', textTransform: 'uppercase' }}>Machine Type</label>
                         <div className="flex-column gap-2">
-                            {['Washer', 'Dryer', 'Both'].map(type => (
+                            {['Both', 'Washer', 'Dryer'].map(type => (
                                 <label 
                                     key={type} 
                                     className={`filter-option-card ${machineType === type ? 'selected' : ''}`}
                                     onClick={() => setMachineType(type)}
                                 >
                                     <input type="radio" name="mt" checked={machineType === type} readOnly style={{ accentColor: 'var(--primary)' }} />
-                                    <span style={{ fontWeight: '600' }}>{type}</span>
+                                    <span style={{ fontWeight: '600' }}>{type === 'Both' ? 'All Types' : type}</span>
                                 </label>
                             ))}
                         </div>
@@ -292,11 +349,11 @@ export default function MapPage() {
                                     <div style={{ background: '#f8fafc', padding: '8px', borderRadius: '8px', marginBottom: '12px' }}>
                                         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', marginBottom: '4px' }}>
                                             <span>Washers:</span>
-                                            <span style={{ fontWeight: 'bold' }}>{branch.machines.available.washer} Avail.</span>
+                                            <span style={{ fontWeight: 'bold' }}>{branch.machines?.available?.washer ?? 0} Avail.</span>
                                         </div>
                                         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem' }}>
                                             <span>Dryers:</span>
-                                            <span style={{ fontWeight: 'bold' }}>{branch.machines.available.dryer} Avail.</span>
+                                            <span style={{ fontWeight: 'bold' }}>{branch.machines?.available?.dryer ?? 0} Avail.</span>
                                         </div>
                                     </div>
 
@@ -312,6 +369,12 @@ export default function MapPage() {
                         </Marker>
                     ))}
                 </MapContainer>
+
+                {isLoading && (
+                    <div className="map-loading-overlay">
+                        Loading laundries...
+                    </div>
+                )}
 
                 {/* Legend Overlay */}
                 <div className="map-legend animate-in">
@@ -342,11 +405,11 @@ export default function MapPage() {
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem' }}>
                             <div className="machine-pill washer-pill">
                                 <small style={{ display: 'block', fontSize: '0.6rem', fontWeight: '800', textTransform: 'uppercase', marginBottom: '0.25rem' }}>Available Washers</small>
-                                <strong style={{ fontSize: '1.1rem' }}>{selectedBranch.machines.available.washer} Units</strong>
+                                <strong style={{ fontSize: '1.1rem' }}>{selectedBranch.machines?.available?.washer ?? 0} Units</strong>
                             </div>
                             <div className="machine-pill dryer-pill">
                                 <small style={{ display: 'block', fontSize: '0.6rem', fontWeight: '800', textTransform: 'uppercase', marginBottom: '0.25rem' }}>Available Dryers</small>
-                                <strong style={{ fontSize: '1.1rem' }}>{selectedBranch.machines.available.dryer} Units</strong>
+                                <strong style={{ fontSize: '1.1rem' }}>{selectedBranch.machines?.available?.dryer ?? 0} Units</strong>
                             </div>
                         </div>
 

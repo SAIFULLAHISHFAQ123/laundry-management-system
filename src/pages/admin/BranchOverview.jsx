@@ -1,121 +1,124 @@
-import { useState, useEffect } from 'react';
-import { getBranches } from '../../services/MapService';
-import '../../styles/admin.css';
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export default function BranchOverview() {
+
     const [branches, setBranches] = useState([]);
 
+    const navigate = useNavigate();
+
     useEffect(() => {
-        setBranches(getBranches());
+
+        fetchBranches();
+
     }, []);
 
-    const toggleBranchStatus = (id) => {
-        const updated = branches.map(b => {
-            if (b.id === id) {
-                const nextStatus = b.status === "Green" ? "Red" : "Green";
-                return { ...b, status: nextStatus };
+    const fetchBranches = async () => {
+
+        try {
+
+            const res = await fetch(
+                'https://localhost:7208/api/Laundry'
+            );
+
+            const data = await res.json();
+
+            setBranches(data);
+
+        } catch (error) {
+
+            console.log(error);
+
+        }
+    };
+
+    const deleteLaundry = async (id) => {
+
+        const confirmDelete = window.confirm(
+            'Are you sure?'
+        );
+
+        if (!confirmDelete) return;
+
+        try {
+
+            const res = await fetch(
+                `https://localhost:7208/api/Laundry/${id}`,
+                {
+                    method: 'DELETE'
+                }
+            );
+
+            if (!res.ok) {
+                throw new Error('Delete failed');
             }
-            return b;
-        });
-        setBranches(updated);
-        localStorage.setItem('laundry_branches', JSON.stringify(updated));
+
+            alert('Laundry deleted ✅');
+
+            fetchBranches();
+
+        } catch (error) {
+
+            console.log(error);
+
+            alert('Delete failed ❌');
+        }
     };
 
     return (
-        <div className="admin-container">
-            {/* Stats Summary Bar */}
-            <div className="stats-grid">
-                <div className="stat-card" style={{ borderLeft: '5px solid var(--primary)', borderTop: 'none' }}>
-                    <div className="stat-label">Total Branches</div>
-                    <div className="stat-value">{branches.length}</div>
-                </div>
-                <div className="stat-card" style={{ borderLeft: '5px solid #10b981', borderTop: 'none' }}>
-                    <div className="stat-label">Online Now</div>
-                    <div className="stat-value" style={{ color: '#10b981' }}>{branches.filter(b => b.status === 'Green').length}</div>
-                </div>
-                <div className="stat-card" style={{ borderLeft: '5px solid #ef4444', borderTop: 'none' }}>
-                    <div className="stat-label">Peak Capacity</div>
-                    <div className="stat-value" style={{ color: '#ef4444' }}>{branches.filter(b => b.status === 'Red').length}</div>
-                </div>
-                <div className="stat-card" style={{ borderLeft: '5px solid #f59e0b', borderTop: 'none' }}>
-                    <div className="stat-label">Avg Satisfaction</div>
-                    <div className="stat-value" style={{ color: '#f59e0b' }}>4.9<span style={{ fontSize: '1rem', marginLeft: '4px' }}>★</span></div>
-                </div>
+        <div className="admin-container animate-in">
+
+            <div className="admin-header">
+                <h2 className="admin-page-title">Laundry Branches</h2>
+                <button
+                    className="btn btn-primary"
+                    onClick={() => navigate('/admin/add-laundry')}
+                >
+                    + Add New Branch
+                </button>
             </div>
 
-            <div className="admin-table-container animate-in">
-                <table className="admin-table">
-                    <thead>
-                        <tr>
-                            <th>Branch Details</th>
-                            <th>Contact</th>
-                            <th>Location</th>
-                            <th>Inventory</th>
-                            <th>Status</th>
-                            <th>Pricing</th>
-                            <th style={{ textAlign: 'right' }}>Control</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {branches.map((b) => (
-                            <tr key={b.id}>
-                                <td>
-                                    <strong style={{ display: 'block' }}>{b.name}</strong>
-                                    <small className="text-muted">⭐ {b.rating} Rating</small>
-                                </td>
-                                <td style={{ fontSize: '0.85rem' }}>{b.contact || '+92 3XX XXXXXXX'}</td>
-                                <td>{b.city}</td>
-                                <td>
-                                    <div style={{ display: 'flex', gap: '0.5rem' }}>
-                                        <span className="badge badge-primary">{b.machines.available.washer + b.machines.busy.washer}W</span>
-                                        <span className="badge badge-primary" style={{ backgroundColor: '#6366f1' }}>{b.machines.available.dryer + b.machines.busy.dryer}D</span>
-                                    </div>
-                                </td>
-                                <td>
-                                    <span style={{
-                                        display: 'inline-flex',
-                                        alignItems: 'center',
-                                        gap: '0.5rem',
-                                        padding: '4px 12px',
-                                        borderRadius: '99px',
-                                        fontSize: '0.75rem',
-                                        fontWeight: '700',
-                                        backgroundColor: b.status === "Green" ? "#dcfce7" : b.status === "Orange" ? "#fef3c7" : "#fee2e2",
-                                        color: b.status === "Green" ? "#15803d" : b.status === "Orange" ? "#92400e" : "#b91c1c"
-                                    }}>
-                                        <span style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: b.status === "Green" ? "#15803d" : b.status === "Orange" ? "#92400e" : "#b91c1c" }}></span>
-                                        {b.status === "Green" ? 'AVAILABLE' : b.status === "Orange" ? 'BUSY SOON' : 'FULL'}
-                                    </span>
-                                </td>
-                                <td>
-                                    <strong>PKR {b.basePrice}</strong>
-                                </td>
-                                <td style={{ textAlign: 'right' }}>
-                                    <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
-                                        <button
-                                            className="btn btn-outline"
-                                            style={{ fontSize: '0.75rem', padding: '0.4rem 0.8rem' }}
-                                            onClick={() => toggleBranchStatus(b.id)}
-                                        >
-                                            Toggle
-                                        </button>
-                                        <button
-                                            className="btn btn-outline"
-                                            style={{ fontSize: '0.75rem', padding: '0.4rem 0.8rem', color: 'var(--primary)', borderColor: 'var(--primary)' }}
-                                            onClick={() => alert(`Editing ${b.name}...`)}
-                                        >
-                                            Edit
-                                        </button>
-                                    </div>
-                                </td>
+            <div className="admin-card">
+                <div className="admin-table-container">
+                    <table className="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Branch Name</th>
+                                <th>City</th>
+                                <th>Contact Number</th>
+                                <th>Actions</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
+                        </thead>
 
-            <div style={{ marginTop: '2rem', textAlign: 'center' }}>
-                <p className="text-muted" style={{ fontSize: '0.85rem' }}>Only green branches are fully bookable by customers in Real-Time availability searches.</p>
+                        <tbody>
+                            {branches.map(branch => (
+                                <tr key={branch.laundryId}>
+                                    <td style={{ fontWeight: '600' }}>{branch.name}</td>
+                                    <td>{branch.city}</td>
+                                    <td>{branch.contactNumber}</td>
+                                    <td>
+                                        <div className="flex gap-2">
+                                            <button
+                                                className="btn btn-outline"
+                                                style={{ padding: '0.5rem 1rem', fontSize: '0.85rem' }}
+                                                onClick={() => navigate(`/admin/edit-laundry/${branch.laundryId}`)}
+                                            >
+                                                Edit
+                                            </button>
+                                            <button
+                                                className="btn btn-danger"
+                                                style={{ padding: '0.5rem 1rem', fontSize: '0.85rem' }}
+                                                onClick={() => deleteLaundry(branch.laundryId)}
+                                            >
+                                                Delete
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     );

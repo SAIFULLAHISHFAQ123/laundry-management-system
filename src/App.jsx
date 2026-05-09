@@ -36,7 +36,8 @@ import MachineManagement from "./pages/admin/MachineManagement";
 import BookingManagement from "./pages/admin/BookingManagement";
 import AdminReservations from "./pages/admin/AdminReservations";
 import AdminNotifications from "./pages/admin/AdminNotifications";
-
+import AddMachineProgram from "./pages/admin/AddMachineProgram";
+import MachineProgramManagement from "./pages/admin/MachineProgramManagement";
 export default function App() {
   console.log("App: Rendering...");
   return (
@@ -69,8 +70,11 @@ export default function App() {
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="branch-overview" element={<BranchOverview />} />
           <Route path="add-laundry" element={<AddLaundry />} />
+          <Route path="edit-laundry/:id" element={<AddLaundry />} />
           <Route path="add-machine" element={<AddMachine />} />
           <Route path="machines" element={<MachineManagement />} />
+          <Route path="add-machine-program" element={<AddMachineProgram />} />
+          <Route path="machine-programs" element={<MachineProgramManagement />} />
           <Route path="bookings" element={<BookingManagement />} />
           <Route path="reservations" element={<AdminReservations />} />
           <Route path="notifications" element={<AdminNotifications />} />

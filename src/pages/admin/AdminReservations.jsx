@@ -1,18 +1,17 @@
 import { useState, useEffect } from 'react';
 import { getBranches } from '../../services/MapService';
+import { useBooking } from '../../context/BookingContext';
 
 export default function AdminReservations() {
-    const [bookings, setBookings] = useState([]);
+    const { reservations, cancelBooking, completeBooking } = useBooking();
     const [branches, setBranches] = useState([]);
     const [selectedBranch, setSelectedBranch] = useState('All');
 
     useEffect(() => {
-        const stored = JSON.parse(localStorage.getItem('laundry_reservations') || '[]');
-        setBookings(stored);
         setBranches(getBranches());
     }, []);
 
-    const filtered = bookings.filter(b => 
+    const filtered = (reservations || []).filter(b => 
         (selectedBranch === 'All' || b.branch?.name === selectedBranch) && b.status === 'Upcoming'
     ).sort((a, b) => {
         // Sort by date then timeSlot then queuePosition
@@ -93,7 +92,11 @@ export default function AdminReservations() {
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', borderTop: '1px solid var(--border)', paddingTop: '1rem' }}>
                                 <div>
                                     <small className="text-muted" style={{ fontSize: '0.7rem', textTransform: 'uppercase' }}>Arrival</small>
-                                    <div style={{ fontWeight: '700' }}>{b.timeSlot?.time}</div>
+                                    <div style={{ fontWeight: '700' }}>
+                                        {b.timeSlots && b.timeSlots.length > 0 
+                                            ? b.timeSlots.map(s => s.time).join(', ') 
+                                            : (b.timeSlot?.time || 'N/A')}
+                                    </div>
                                 </div>
                                 <div>
                                     <small className="text-muted" style={{ fontSize: '0.7rem', textTransform: 'uppercase' }}>Date</small>
@@ -109,8 +112,32 @@ export default function AdminReservations() {
                                 </div>
                             </div>
 
-                            <div style={{ marginTop: '1rem', textAlign: 'right' }}>
-                                <small className="text-muted" style={{ fontSize: '0.75rem' }}>Ticket ID: {b.bookingId}</small>
+                            <div style={{ marginTop: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px dashed var(--border)', paddingTop: '1rem' }}>
+                                <small className="text-muted" style={{ fontSize: '0.75rem' }}>ID: {b.bookingId}</small>
+                                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                    <button 
+                                        className="btn btn-outline" 
+                                        style={{ padding: '0.4rem 0.8rem', fontSize: '0.75rem', color: 'var(--danger)', borderColor: 'var(--danger)' }}
+                                        onClick={() => {
+                                            if (window.confirm('Cancel this reservation?')) {
+                                                cancelBooking(b.bookingId);
+                                            }
+                                        }}
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button 
+                                        className="btn btn-primary" 
+                                        style={{ padding: '0.4rem 0.8rem', fontSize: '0.75rem' }}
+                                        onClick={() => {
+                                            if (window.confirm('Mark this reservation as Completed?')) {
+                                                completeBooking(b.bookingId);
+                                            }
+                                        }}
+                                    >
+                                        Complete
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     ))

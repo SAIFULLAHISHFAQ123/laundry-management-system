@@ -39,11 +39,11 @@ const DETERGENTS = [
 
 export default function Detergent() {
     const navigate = useNavigate();
-    const { bookingData, updateBooking } = useBooking();
+    const { bookingData, updateBooking, addToCart } = useBooking();
 
     useEffect(() => {
-        if (!bookingData.clothType) {
-            navigate('/cloth-type');
+        if (!bookingData.timeSlots || bookingData.timeSlots.length === 0) {
+            navigate('/time-availability');
         }
     }, [bookingData, navigate]);
 
@@ -55,19 +55,31 @@ export default function Detergent() {
             return;
         }
         updateBooking('detergent', selectedDetergent);
-        navigate('/machine-detail'); // Step 5
+        
+        // Add to cart directly as we don't have another screen before it
+        addToCart();
+        navigate('/cart');
     };
 
     const slotsPrice = (bookingData.timeSlots || []).reduce((sum, slot) => sum + (slot.price || 0), 0);
-    const currentTotal = slotsPrice + (bookingData.clothType?.price * (bookingData.numLoads || 1) || 0);
+    
+    // Calculate machine price
+    let machinesPrice = 0;
+    if (bookingData.machineQuantities && bookingData.selectedMachines) {
+        bookingData.selectedMachines.forEach(m => {
+            machinesPrice += m.price;
+        });
+    }
+
+    const currentTotal = slotsPrice + machinesPrice;
 
     return (
         <div className="container animate-in" style={{ maxWidth: '800px', margin: 'auto' }}>
             {/* Selection context */}
             <div style={{ backgroundColor: 'var(--primary-light)', borderRadius: 'var(--radius)', padding: '0.75rem 1.25rem', marginBottom: '1.5rem', display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
                 <div style={{ flex: 1 }}>
-                    <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--primary-dark)', fontWeight: '600', textTransform: 'uppercase' }}>Selected Program</p>
-                    <strong style={{ color: 'var(--primary)', fontSize: '0.95rem' }}>{bookingData.clothType?.type} Wash ({bookingData.numLoads || 1} Loads)</strong>
+                    <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--primary-dark)', fontWeight: '600', textTransform: 'uppercase' }}>Selected Details</p>
+                    <strong style={{ color: 'var(--primary)', fontSize: '0.95rem' }}>{bookingData.clothType?.type} Wash • {bookingData.selectedMachines?.length || 0} Machine(s)</strong>
                 </div>
                 <div style={{ textAlign: 'right' }}>
                     <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Running Total</p>
@@ -75,7 +87,7 @@ export default function Detergent() {
                 </div>
             </div>
 
-            <h1 style={{ color: 'var(--primary)', marginBottom: '0.5rem', textAlign: 'center' }}>Step 4: Select Detergent</h1>
+            <h1 style={{ color: 'var(--primary)', marginBottom: '0.5rem', textAlign: 'center' }}>Step 5: Select Detergent</h1>
             <p style={{ textAlign: 'center', color: 'var(--text-muted)', marginBottom: '2rem', fontSize: '0.95rem' }}>Choose your cleaning agent preferences.</p>
 
             <div className="card">
@@ -125,7 +137,7 @@ export default function Detergent() {
                 </div>
 
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <button className="btn btn-outline" onClick={() => navigate('/cloth-type')}>← Back</button>
+                    <button className="btn btn-outline" onClick={() => navigate('/time-availability')}>← Back</button>
                     
                     {selectedDetergent && (
                         <div style={{ textAlign: 'center' }}>
@@ -134,7 +146,7 @@ export default function Detergent() {
                         </div>
                     )}
 
-                    <button className="btn btn-primary" onClick={handleNext}>Next: Choose Machine →</button>
+                    <button className="btn btn-primary" onClick={handleNext}>Confirm & Add to Cart →</button>
                 </div>
             </div>
         </div>

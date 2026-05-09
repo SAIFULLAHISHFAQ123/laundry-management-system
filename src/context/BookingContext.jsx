@@ -48,6 +48,20 @@ export const BookingProvider = ({ children }) => {
         localStorage.setItem('laundry_reservations', JSON.stringify(reservations));
     }, [reservations]);
 
+    // Sync across tabs
+    useEffect(() => {
+        const handleStorageChange = (e) => {
+            if (e.key === 'laundry_reservations') {
+                setReservations(JSON.parse(e.newValue || '[]'));
+            }
+            if (e.key === 'laundry_cart') {
+                setCart(JSON.parse(e.newValue || '[]'));
+            }
+        };
+        window.addEventListener('storage', handleStorageChange);
+        return () => window.removeEventListener('storage', handleStorageChange);
+    }, []);
+
     const updateBooking = (key, value) => {
         setBookingData(prev => ({ ...prev, [key]: value }));
     };
@@ -59,9 +73,10 @@ export const BookingProvider = ({ children }) => {
             date: new Date().toISOString().split('T')[0],
             timeSlots: [],
             clothType: null,
-            numLoads: 1,
             detergent: null,
             machine: null,
+            selectedMachines: [],
+            machineQuantities: {},
             isQueued: false,
             estimatedArrival: null
         });
@@ -69,12 +84,15 @@ export const BookingProvider = ({ children }) => {
 
     const addToCart = () => {
         const slotsPrice = (bookingData.timeSlots || []).reduce((sum, slot) => sum + (slot.price || 0), 0);
+        let machinesPrice = 0;
+        if (bookingData.selectedMachines) {
+            bookingData.selectedMachines.forEach(m => { machinesPrice += m.price || 0; });
+        }
+        
         const newItem = {
             id: Date.now(),
             ...bookingData,
-            totalPrice: slotsPrice + 
-                        ((bookingData.clothType?.price || 0) * (bookingData.numLoads || 1)) + 
-                        (bookingData.detergent?.price || 0)
+            totalPrice: slotsPrice + machinesPrice + (bookingData.detergent?.price || 0)
         };
         setCart(prev => [...prev, newItem]);
         resetBooking();
@@ -102,6 +120,12 @@ export const BookingProvider = ({ children }) => {
         ));
     };
 
+    const completeBooking = (bookingId) => {
+        setReservations(prev => prev.map(res => 
+            res.bookingId === bookingId ? { ...res, status: 'Completed' } : res
+        ));
+    };
+
     const login = (email, password) => {
         if (email === 'admin@gmail.com' && password === 'admin123') {
             setRole('Admin');
@@ -124,7 +148,7 @@ export const BookingProvider = ({ children }) => {
             role, login, logout,
             bookingData, updateBooking, resetBooking,
             cart, addToCart, removeFromCart,
-            reservations, createBooking, cancelBooking
+            reservations, createBooking, cancelBooking, completeBooking
         }}>
             {children}
         </BookingContext.Provider>

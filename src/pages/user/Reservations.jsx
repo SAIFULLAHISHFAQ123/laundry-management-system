@@ -51,7 +51,7 @@ export default function Reservations() {
                                     </div>
                                     <div>
                                         <small className="text-muted" style={{ display: 'block', textTransform: 'uppercase' }}>Machine & Queue</small>
-                                        <strong>{res.machineType} ({res.machine?.id})</strong><br/>
+                                        <strong>{res.machineQuantities ? Object.entries(res.machineQuantities).filter(([_, q]) => q > 0).map(([cap, qty]) => `${qty}x ${cap}`).join(', ') : '1 Machine'}</strong><br/>
                                         <span style={{ color: res.isQueued ? 'var(--danger)' : 'var(--primary)', fontWeight: 'bold' }}>
                                             {res.isQueued ? `Distance Queue: Arrive in ${res.estimatedArrival}m` : `#${res.queuePosition} in Queue`}
                                         </span>
@@ -106,7 +106,7 @@ export default function Reservations() {
                                     <tr key={res.bookingId} style={{ borderTop: '1px solid var(--border)' }}>
                                         <td style={{ padding: '1rem' }}><strong>{res.branch?.name}</strong></td>
                                         <td style={{ padding: '1rem' }}>{res.date}</td>
-                                        <td style={{ padding: '1rem' }}>{res.machineType} ({res.machine?.id})</td>
+                                        <td style={{ padding: '1rem' }}>{res.machineQuantities ? Object.entries(res.machineQuantities).filter(([_, q]) => q > 0).map(([cap, qty]) => `${qty}x ${cap}`).join(', ') : '1 Machine'}</td>
                                         <td style={{ padding: '1rem' }}>
                                             <span className={`badge ${res.status === 'Completed' ? 'badge-primary' : 'badge-danger'}`}>
                                                 {res.status}
