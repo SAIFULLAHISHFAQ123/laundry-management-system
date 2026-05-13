@@ -180,7 +180,7 @@ export default function MapPage() {
             
             if (confirmQueue) {
                 updateBooking('branch', branch);
-                updateBooking('selectedDate', selectedDate);
+                updateBooking('date', selectedDate);
                 updateBooking('isQueued', true);
                 updateBooking('estimatedArrival', travelTime);
                 alert("You've been added to the queue! Proceed to select your slots.");
@@ -190,7 +190,7 @@ export default function MapPage() {
         }
 
         updateBooking('branch', branch);
-        updateBooking('selectedDate', selectedDate); // Save date choice
+        updateBooking('date', selectedDate); // Save date choice
         updateBooking('isQueued', false);
         navigate('/machine-date');
     };

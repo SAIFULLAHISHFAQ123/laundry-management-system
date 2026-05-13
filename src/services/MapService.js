@@ -125,6 +125,14 @@ export const normalizeBranch = (laundry, machines = []) => {
     const availableTotal = availableWasher + availableDryer;
     const machineTotal = laundryMachines.length;
 
+    // Automatic status logic: 
+    // 1. If admin manually sets 'Busy', it's Red.
+    // 2. If there are machines and ALL of them are busy (availableTotal === 0), it's Red.
+    // 3. Otherwise, it's Green.
+    const isManuallyBusy = String(laundry.status).toLowerCase() === 'busy';
+    const isAutoBusy = machineTotal > 0 && availableTotal === 0;
+    const finalStatus = (isManuallyBusy || isAutoBusy) ? 'Red' : 'Green';
+
     return {
         ...laundry,
         id,
@@ -137,7 +145,7 @@ export const normalizeBranch = (laundry, machines = []) => {
         position: [Number(laundry.latitude), Number(laundry.longitude)],
         rating: Number(laundry.rating ?? 4.5),
         basePrice: Number(laundry.basePrice ?? 500),
-        status: machineTotal === 0 || availableTotal > 0 ? 'Green' : 'Red',
+        status: finalStatus,
         machines: {
             available: { washer: availableWasher, dryer: availableDryer },
             busy: { washer: busyWasher, dryer: busyDryer }

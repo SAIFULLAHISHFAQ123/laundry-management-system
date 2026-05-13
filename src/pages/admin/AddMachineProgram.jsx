@@ -45,7 +45,9 @@ export default function AddMachineProgram() {
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        programName: formData.programName
+                        programName: formData.programName,
+                        programPrice: parseFloat(formData.price),
+                        durationMinutes: parseInt(formData.duration)
                     })
                 }
             );

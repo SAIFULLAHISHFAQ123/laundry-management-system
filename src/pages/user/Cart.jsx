@@ -22,6 +22,22 @@ export default function Cart() {
         }
     };
 
+    const handleRemoveSelected = () => {
+        if (selectedIds.length === 0) return;
+        if (window.confirm(`Remove ${selectedIds.length} selected items from your basket?`)) {
+            selectedIds.forEach(id => removeFromCart(id));
+            setSelectedIds([]);
+        }
+    };
+
+    const handleSingleRemove = (e, id) => {
+        e.stopPropagation(); // Prevent toggling selection
+        if (window.confirm("Remove this booking from your basket?")) {
+            removeFromCart(id);
+            setSelectedIds(prev => prev.filter(i => i !== id));
+        }
+    };
+
     const selectedItems = cart.filter(item => selectedIds.includes(item.id));
     const totalToPay = selectedItems.reduce((sum, item) => sum + item.totalPrice, 0);
 
@@ -64,17 +80,38 @@ export default function Cart() {
                     </button>
                 </div>
                 
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginTop: '2rem', padding: '1rem', background: 'var(--bg-light)', borderRadius: '16px' }}>
-                    <input 
-                        type="checkbox" 
-                        checked={selectedIds.length === cart.length && cart.length > 0} 
-                        onChange={toggleSelectAll}
-                        id="select-all"
-                        style={{ width: '20px', height: '20px', cursor: 'pointer' }}
-                    />
-                    <label htmlFor="select-all" style={{ cursor: 'pointer', fontSize: '0.95rem', color: 'var(--text-main)', fontWeight: '700' }}>
-                        Select All Items ({cart.length})
-                    </label>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', marginTop: '2rem', padding: '1rem', background: 'var(--bg-light)', borderRadius: '16px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                        <input 
+                            type="checkbox" 
+                            checked={selectedIds.length === cart.length && cart.length > 0} 
+                            onChange={toggleSelectAll}
+                            id="select-all"
+                            style={{ width: '20px', height: '20px', cursor: 'pointer' }}
+                        />
+                        <label htmlFor="select-all" style={{ cursor: 'pointer', fontSize: '0.95rem', color: 'var(--text-main)', fontWeight: '700' }}>
+                            Select All Items ({cart.length})
+                        </label>
+                    </div>
+
+                    {selectedIds.length > 0 && (
+                        <button 
+                            onClick={handleRemoveSelected}
+                            style={{ 
+                                background: 'transparent', 
+                                border: 'none', 
+                                color: '#ef4444', 
+                                fontWeight: '700', 
+                                fontSize: '0.9rem', 
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.5rem'
+                            }}
+                        >
+                            🗑️ Delete Selected ({selectedIds.length})
+                        </button>
+                    )}
                 </div>
             </header>
 
@@ -137,7 +174,7 @@ export default function Cart() {
                             </div>
 
                             <button 
-                                onClick={() => removeFromCart(item.id)}
+                                onClick={(e) => handleSingleRemove(e, item.id)}
                                 style={{ 
                                     background: '#fff1f2', 
                                     border: 'none', 

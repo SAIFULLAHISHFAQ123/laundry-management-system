@@ -38,6 +38,7 @@ import AdminReservations from "./pages/admin/AdminReservations";
 import AdminNotifications from "./pages/admin/AdminNotifications";
 import AddMachineProgram from "./pages/admin/AddMachineProgram";
 import MachineProgramManagement from "./pages/admin/MachineProgramManagement";
+import UserManagement from "./pages/admin/UserManagement";
 export default function App() {
   console.log("App: Rendering...");
   return (
@@ -78,6 +79,7 @@ export default function App() {
           <Route path="bookings" element={<BookingManagement />} />
           <Route path="reservations" element={<AdminReservations />} />
           <Route path="notifications" element={<AdminNotifications />} />
+          <Route path="users" element={<UserManagement />} />
         </Route>
 
         {/* Fallback */}

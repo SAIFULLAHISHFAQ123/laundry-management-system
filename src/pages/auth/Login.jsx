@@ -68,6 +68,7 @@ export default function Login() {
 
       localStorage.setItem("token", data.token);
       localStorage.setItem("role", data.role);
+      localStorage.setItem("user_id", data.userId || "1"); // Default to 1 for now if not provided
       localStorage.setItem("user_email", data.email || email);
       localStorage.setItem("user_name", data.name || "Standard User");
 

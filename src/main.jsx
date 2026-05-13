@@ -5,15 +5,24 @@ import App from "./App";
 import "./styles/global.css";
 
 console.log("main.jsx: Execution started");
+
 const rootElement = document.getElementById("root");
+
 console.log("main.jsx: rootElement found:", !!rootElement);
 
 if (rootElement) {
   const root = ReactDOM.createRoot(rootElement);
+
   console.log("main.jsx: Rendering App...");
+
   root.render(
     <React.StrictMode>
-      <BrowserRouter>
+      <BrowserRouter
+        future={{
+          v7_startTransition: true,
+          v7_relativeSplatPath: true,
+        }}
+      >
         <App />
       </BrowserRouter>
     </React.StrictMode>

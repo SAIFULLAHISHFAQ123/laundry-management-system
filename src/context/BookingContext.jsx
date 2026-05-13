@@ -82,7 +82,8 @@ export const BookingProvider = ({ children }) => {
         });
     };
 
-    const addToCart = () => {
+    const addToCart = (finalDetergent) => {
+        const detergentToUse = finalDetergent || bookingData.detergent;
         const slotsPrice = (bookingData.timeSlots || []).reduce((sum, slot) => sum + (slot.price || 0), 0);
         let machinesPrice = 0;
         if (bookingData.selectedMachines) {
@@ -92,7 +93,8 @@ export const BookingProvider = ({ children }) => {
         const newItem = {
             id: Date.now(),
             ...bookingData,
-            totalPrice: slotsPrice + machinesPrice + (bookingData.detergent?.price || 0)
+            detergent: detergentToUse,
+            totalPrice: slotsPrice + machinesPrice + (detergentToUse?.price || 0)
         };
         setCart(prev => [...prev, newItem]);
         resetBooking();
@@ -114,10 +116,35 @@ export const BookingProvider = ({ children }) => {
         setCart(prev => prev.filter(item => !items.find(i => i.id === item.id)));
     };
 
-    const cancelBooking = (bookingId) => {
-        setReservations(prev => prev.map(res => 
-            res.bookingId === bookingId ? { ...res, status: 'Cancelled' } : res
-        ));
+    const cancelBooking = async (bookingId) => {
+        try {
+            // If it's a numeric ID (DB ID), call the API
+            if (!isNaN(bookingId)) {
+                const url = `https://localhost:7208/api/Booking/Cancel/${bookingId}`;
+                console.log(`Attempting to cancel booking at: ${url}`);
+                
+                const res = await fetch(url, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                if (!res.ok) {
+                    const errorText = await res.text();
+                    throw new Error(`Server returned ${res.status}: ${errorText || 'Unknown error'}`);
+                }
+            }
+
+            // Sync local state
+            setReservations(prev => prev.map(res => 
+                res.bookingId === bookingId ? { ...res, status: 'Cancelled' } : res
+            ));
+            
+            return true;
+        } catch (error) {
+            console.error("Cancellation failed:", error);
+            alert(`Cancellation Error: ${error.message}\n\nPlease ensure your Backend is running and has the new Cancel endpoint.`);
+            return false;
+        }
     };
 
     const completeBooking = (bookingId) => {

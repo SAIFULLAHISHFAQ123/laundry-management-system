@@ -48,7 +48,8 @@ export default function AddLaundry() {
         lat: 33.6844,
         lng: 73.0479,
         openTime: '08:00',
-        closeTime: '21:00'
+        closeTime: '21:00',
+        status: 'Available'
     });
 
     useEffect(() => {
@@ -77,7 +78,8 @@ export default function AddLaundry() {
                 lat: data.latitude,
                 lng: data.longitude,
                 openTime: data.openTime,
-                closeTime: data.closeTime
+                closeTime: data.closeTime,
+                status: data.status || 'Available'
             });
 
         } catch (error) {
@@ -107,7 +109,8 @@ export default function AddLaundry() {
             latitude: parseFloat(formData.lat),
             longitude: parseFloat(formData.lng),
             openTime: formData.openTime,
-            closeTime: formData.closeTime
+            closeTime: formData.closeTime,
+            status: formData.status
         };
 
         try {
@@ -263,6 +266,23 @@ export default function AddLaundry() {
                                 onChange={(e) => setFormData({ ...formData, closeTime: e.target.value })}
                             />
                         </div>
+                    </div>
+
+                    <div className="form-group">
+                        <label>Operational Status</label>
+                        <select
+                            className="input-control"
+                            value={formData.status}
+                            onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                            style={{ 
+                                color: formData.status === 'Busy' ? 'var(--danger)' : 'var(--success)',
+                                fontWeight: 'bold'
+                            }}
+                        >
+                            <option value="Available">Available (Green on Map)</option>
+                            <option value="Busy">Busy / Temporarily Closed (Red on Map)</option>
+                        </select>
+                        <small className="text-muted">Setting to 'Busy' will manually turn the map marker red for all users.</small>
                     </div>
 
                     <div className="flex-between gap-4" style={{ marginTop: '2rem' }}>

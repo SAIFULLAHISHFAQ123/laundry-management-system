@@ -13,6 +13,7 @@ export default function AdminLayout() {
         { path: '/admin/machines', label: 'Machines', icon: '⚙️' },
         { path: '/admin/bookings', label: 'Live Bookings', icon: '🕒' },
         { path: '/admin/machine-programs', label: 'Programs', icon: '🧬' },
+        { path: '/admin/users', label: 'Manage Users', icon: '👥' },
         { path: '/admin/reservations', label: 'Analytics', icon: '📈' },
         { path: '/admin/notifications', label: 'Alerts', icon: '🔔' },
     ];

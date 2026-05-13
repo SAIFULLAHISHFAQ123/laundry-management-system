@@ -24,21 +24,39 @@ export default function ClothType() {
   }, []);
 
   const fetchPrograms = async () => {
-
     try {
-
-      const res = await fetch(
-        'https://localhost:7208/api/program1'
-      );
-
+      const res = await fetch('https://localhost:7208/api/machineprograms');
       const data = await res.json();
+      
+      // Filter unique programs by name and ensure they have the necessary fields
+      const uniquePrograms = [];
+      const seenNames = new Set();
+      
+      const branchId = bookingData.branch?.id || bookingData.branch?.laundryId;
+      
+      data.forEach(item => {
+        const itemBranchId = item.laundryId || item.branchId;
+        
+        // Filter by branch if branch info exists in the item
+        if (branchId && itemBranchId && String(itemBranchId) !== String(branchId)) {
+          return;
+        }
 
-      setPrograms(data);
+        const name = item.programName || `Program ${item.programId}`;
+        if (!seenNames.has(name)) {
+          seenNames.add(name);
+          uniquePrograms.push({
+            programId: item.programId,
+            programName: name,
+            programPrice: item.programPrice,
+            durationMinutes: item.durationMinutes || 45
+          });
+        }
+      });
 
-    }
-    catch (error) {
-
-      console.error("Failed to load programs", error);
+      setPrograms(uniquePrograms);
+    } catch (error) {
+      console.error("Failed to load programs from machineprograms", error);
     }
   };
 
@@ -84,6 +102,17 @@ export default function ClothType() {
                 <p className="text-muted" style={{ maxWidth: '500px', margin: '0 auto' }}>Choose the perfect treatment for your garments based on fabric type and soil level.</p>
             </div>
 
+            {/* Selected Program Info */}
+            {selectedProgram && (
+                <div className="card mb-6" style={{ padding: '1.5rem', backgroundColor: 'var(--primary-light)', border: '2px solid var(--primary)' }}>
+                    <div className="text-center">
+                        <h3 style={{ fontSize: '1.25rem', fontWeight: '800', color: 'var(--primary-dark)', marginBottom: '0.5rem' }}>
+                            Selected: {selectedProgram.programName}
+                        </h3>
+                    </div>
+                </div>
+            )}
+
             {/* Selection Grid */}
             <div className="card" style={{ padding: '2.5rem' }}>
                 <div className="flex-between mb-8">
@@ -128,9 +157,6 @@ export default function ClothType() {
                                     <h3 style={{ fontSize: '1.1rem', fontWeight: '800', marginBottom: '0.5rem', color: isSelected ? 'var(--primary-dark)' : 'var(--text-main)' }}>
                                         {p.programName}
                                     </h3>
-                                    <p className="text-muted" style={{ fontSize: '0.85rem', marginBottom: '1.5rem' }}>
-                                        {p.durationMinutes || '45'} Mins
-                                    </p>
                                     <div style={{ 
                                         fontSize: '1.25rem', 
                                         fontWeight: '800', 

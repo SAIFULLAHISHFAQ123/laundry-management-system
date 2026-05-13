@@ -31,7 +31,7 @@ export default function TimeAvailability() {
     const [isLoading, setIsLoading] = useState(true);
 
     const totalMachinesSelected = bookingData.selectedMachines ? bookingData.selectedMachines.length : 0;
-    const displayDate = bookingData.selectedDate || new Date().toISOString().split('T')[0];
+    const displayDate = bookingData.date || new Date().toISOString().split('T')[0];
 
     useEffect(() => {
         const fetchDuration = async () => {
@@ -116,10 +116,10 @@ export default function TimeAvailability() {
                     <div style={{ fontSize: '2rem' }}>⏱️</div>
                     <div>
                         <p style={{ margin: 0, fontWeight: '800', color: 'var(--primary-dark)', fontSize: '1.1rem' }}>
-                            Slot Duration: {durationMins} Minutes
+                            {bookingData.clothType?.programName}
                         </p>
                         <p style={{ margin: 0, color: 'var(--primary)', fontSize: '0.85rem', fontWeight: '600' }}>
-                            Optimized for {bookingData.clothType?.programName}
+                            Optimized for selected fabric type
                         </p>
                     </div>
                 </div>

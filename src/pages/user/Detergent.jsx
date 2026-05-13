@@ -49,15 +49,12 @@ export default function Detergent() {
 
     const [selectedDetergent, setSelectedDetergent] = useState(bookingData.detergent || null);
 
-    const handleNext = () => {
-        if (!selectedDetergent) {
-            alert('Please select a detergent option.');
-            return;
-        }
-        updateBooking('detergent', selectedDetergent);
+    const selectAndNavigate = (det) => {
+        setSelectedDetergent(det);
+        updateBooking('detergent', det);
         
-        // Add to cart directly as we don't have another screen before it
-        addToCart();
+        // Pass the detergent directly to addToCart to avoid stale state issues
+        addToCart(det);
         navigate('/cart');
     };
 
@@ -79,16 +76,16 @@ export default function Detergent() {
             <div style={{ backgroundColor: 'var(--primary-light)', borderRadius: 'var(--radius)', padding: '0.75rem 1.25rem', marginBottom: '1.5rem', display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
                 <div style={{ flex: 1 }}>
                     <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--primary-dark)', fontWeight: '600', textTransform: 'uppercase' }}>Selected Details</p>
-                    <strong style={{ color: 'var(--primary)', fontSize: '0.95rem' }}>{bookingData.clothType?.type} Wash • {bookingData.selectedMachines?.length || 0} Machine(s)</strong>
+                    <strong style={{ color: 'var(--primary)', fontSize: '0.95rem' }}>{bookingData.clothType?.programName || bookingData.clothType?.type} Wash • {bookingData.selectedMachines?.length || 0} Machine(s)</strong>
                 </div>
                 <div style={{ textAlign: 'right' }}>
-                    <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Running Total</p>
+                    <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Current Total</p>
                     <strong style={{ fontSize: '0.95rem' }}>PKR {currentTotal}</strong>
                 </div>
             </div>
 
             <h1 style={{ color: 'var(--primary)', marginBottom: '0.5rem', textAlign: 'center' }}>Step 5: Select Detergent</h1>
-            <p style={{ textAlign: 'center', color: 'var(--text-muted)', marginBottom: '2rem', fontSize: '0.95rem' }}>Choose your cleaning agent preferences.</p>
+            <p style={{ textAlign: 'center', color: 'var(--text-muted)', marginBottom: '2rem', fontSize: '0.95rem' }}>Choose your cleaning agent. Clicking an option will add it to your cart.</p>
 
             <div className="card">
                 <h3 style={{ marginBottom: '1.25rem' }}>Detergent Options</h3>
@@ -99,7 +96,7 @@ export default function Detergent() {
                         return (
                             <div
                                 key={det.id}
-                                onClick={() => setSelectedDetergent(det)}
+                                onClick={() => selectAndNavigate(det)}
                                 style={{
                                     border: `2px solid ${isSelected ? 'var(--primary)' : 'var(--border)'}`,
                                     padding: '1.25rem',
@@ -139,14 +136,11 @@ export default function Detergent() {
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <button className="btn btn-outline" onClick={() => navigate('/time-availability')}>← Back</button>
                     
-                    {selectedDetergent && (
-                        <div style={{ textAlign: 'center' }}>
-                            <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-muted)' }}>Final Selection Total</p>
-                            <strong style={{ color: 'var(--primary)', fontSize: '1.25rem' }}>PKR {currentTotal + selectedDetergent.price}</strong>
-                        </div>
-                    )}
+                    <div style={{ textAlign: 'center' }}>
+                        <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-muted)' }}>Select an option above to proceed</p>
+                    </div>
 
-                    <button className="btn btn-primary" onClick={handleNext}>Confirm & Add to Cart →</button>
+                    <button className="btn btn-primary" disabled style={{ opacity: 0.5, cursor: 'not-allowed' }}>Confirm & Add to Cart →</button>
                 </div>
             </div>
         </div>
