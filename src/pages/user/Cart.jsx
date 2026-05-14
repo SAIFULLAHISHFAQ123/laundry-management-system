@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useBooking } from '../../context/BookingContext';
 
@@ -6,7 +6,11 @@ export default function Cart() {
     const navigate = useNavigate();
     const { cart, removeFromCart, resetBooking } = useBooking();
     
-    const [selectedIds, setSelectedIds] = useState(cart.map(item => item.id));
+    const [selectedIds, setSelectedIds] = useState(() => cart.map(item => item.id));
+
+    useEffect(() => {
+        setSelectedIds(prev => prev.filter(id => cart.some(item => item.id === id)));
+    }, [cart]);
 
     const toggleSelect = (id) => {
         setSelectedIds(prev => 
@@ -119,20 +123,29 @@ export default function Cart() {
                 {/* Cart Items List */}
                 <div className="flex-column gap-6">
                     {cart.map((item) => (
-                        <div key={item.id} className="selection-card" style={{ 
-                            display: 'grid', 
-                            gridTemplateColumns: 'auto 1fr auto', 
-                            gap: '1.5rem', 
-                            padding: '1.5rem',
-                            border: selectedIds.includes(item.id) ? '2px solid var(--primary)' : '2px solid transparent',
-                            background: selectedIds.includes(item.id) ? 'var(--primary-light)' : 'var(--bg-white)',
-                            alignItems: 'center'
-                        }}>
+                        <div
+                            key={item.id}
+                            className={`selection-card ${selectedIds.includes(item.id) ? 'selected' : ''}`}
+                            onClick={() => toggleSelect(item.id)}
+                            role="button"
+                            tabIndex={0}
+                            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') toggleSelect(item.id); }}
+                            style={{ 
+                                display: 'grid', 
+                                gridTemplateColumns: 'auto 1fr auto', 
+                                gap: '1.5rem', 
+                                padding: '1.5rem',
+                                border: selectedIds.includes(item.id) ? '2px solid var(--primary)' : '2px solid transparent',
+                                background: selectedIds.includes(item.id) ? 'var(--primary-light)' : 'var(--bg-white)',
+                                alignItems: 'center',
+                                cursor: 'pointer'
+                            }}
+                        >
                             <div style={{ display: 'flex', alignItems: 'center' }}>
                                 <input 
                                     type="checkbox" 
                                     checked={selectedIds.includes(item.id)} 
-                                    onChange={() => toggleSelect(item.id)}
+                                    onChange={(e) => { e.stopPropagation(); toggleSelect(item.id); }}
                                     style={{ width: '22px', height: '22px', cursor: 'pointer' }}
                                 />
                             </div>

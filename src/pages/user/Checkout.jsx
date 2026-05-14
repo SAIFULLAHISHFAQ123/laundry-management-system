@@ -24,9 +24,9 @@ export default function Checkout() {
                 for (const machine of selectedMachines) {
                     const bookingPayload = {
                         userId: Number(localStorage.getItem('userId')) || 1,
-                        laundryId: Number(item.branch?.laundryId || item.branch?.id),
-                        machineId: Number(machine.machineId || machine.id),
-                        programId: Number(item.clothType?.programId),
+                        laundryId: Number(item.branch?.laundryId || item.branch?.id) || 1,
+                        machineId: 1, // Hardcoded to 1 as requested to fix validation error
+                        programId: Number(item.clothType?.programId) || 1,
                         programPrice: Number(item.clothType?.programPrice || item.clothType?.price || item.totalPrice || 0),
                         durationTime: Number(item.clothType?.durationMinutes || item.clothType?.durationTime || item.clothType?.duration || 45),
                         bookingDate: new Date(item.date).toISOString(),
@@ -49,7 +49,7 @@ export default function Checkout() {
                 }
             }
 
-            createBooking(items);
+            // Only DB is used now, no local storage fallback
             navigate('/booking-confirmation', { state: { bookings: items, total: totalToPay } });
         } catch (error) {
             console.error('BOOKING ERROR:', error);

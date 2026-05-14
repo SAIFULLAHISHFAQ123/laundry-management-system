@@ -9,7 +9,7 @@ export default function TimeAvailability() {
 
     useEffect(() => {
         if (!bookingData.selectedMachines || bookingData.selectedMachines.length === 0) {
-            navigate('/machine-detail');
+            navigate('/machine-selection');
         }
     }, [bookingData, navigate]);
 
@@ -196,8 +196,8 @@ export default function TimeAvailability() {
                 )}
 
                 <div className="flex-between" style={{ marginTop: '2rem', paddingTop: '2.5rem', borderTop: '2px dashed var(--border)' }}>
-                    <button className="btn btn-outline" onClick={() => navigate('/machine-detail')} style={{ padding: '0.8rem 2rem' }}>
-                        ← Back
+                    <button className="btn btn-outline" onClick={() => navigate('/home')} style={{ padding: '0.8rem 2rem' }}>
+                        ← Back to Map
                     </button>
                     <button className="btn btn-primary" onClick={handleNext} style={{ padding: '1rem 2.5rem', fontSize: '1.1rem' }}>
                         Review Order →

@@ -55,7 +55,7 @@
 }
 
 .admin-nav-link:hover {
-  background-color: var(--bg-light);
+  background-color: var(--primary-light);
   color: var(--primary);
   transform: translateX(4px);
 }
@@ -63,6 +63,8 @@
 .admin-nav-link.active {
   color: var(--primary);
   background-color: var(--primary-light);
+  border-right: 4px solid var(--primary);
+  border-radius: var(--radius-md) 0 0 var(--radius-md);
 }
 
 .admin-sidebar-footer {
@@ -110,6 +112,13 @@
   border-radius: var(--radius-lg);
   border: 1px solid var(--border);
   box-shadow: var(--shadow-sm);
+  border-top: 4px solid var(--primary);
+  transition: var(--transition);
+}
+
+.stat-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-lg);
 }
 
 .stat-label {

@@ -3,21 +3,39 @@ import { getBranches } from '../../services/MapService';
 import { useBooking } from '../../context/BookingContext';
 
 export default function AdminReservations() {
-    const { reservations, cancelBooking, completeBooking } = useBooking();
+    const { cancelBooking, completeBooking } = useBooking();
     const [branches, setBranches] = useState([]);
     const [selectedBranch, setSelectedBranch] = useState('All');
+    const [dbReservations, setDbReservations] = useState([]);
 
     useEffect(() => {
         setBranches(getBranches());
+        fetchLiveQueue();
+        
+        // Polling live queue every 5 seconds for admin dashboard
+        const interval = setInterval(fetchLiveQueue, 5000);
+        return () => clearInterval(interval);
     }, []);
 
-    const filtered = (reservations || []).filter(b => 
-        (selectedBranch === 'All' || b.branch?.name === selectedBranch) && b.status === 'Upcoming'
+    const fetchLiveQueue = async () => {
+        try {
+            const res = await fetch('https://localhost:7208/api/booking');
+            if (res.ok) {
+                const data = await res.json();
+                setDbReservations(data);
+            }
+        } catch (error) {
+            console.error("Failed to fetch live queue", error);
+        }
+    };
+
+    const filtered = (dbReservations || []).filter(b => 
+        (selectedBranch === 'All' || b.branch?.name === selectedBranch || b.laundry?.name === selectedBranch) && (b.status === 'Upcoming' || b.bookingStatus === 'Pending' || b.bookingStatus === 'Upcoming')
     ).sort((a, b) => {
-        // Sort by date then timeSlot then queuePosition
-        if (a.date !== b.date) return a.date.localeCompare(b.date);
-        if (a.timeSlot?.time !== b.timeSlot?.time) return a.timeSlot?.time.localeCompare(b.timeSlot?.time);
-        return a.queuePosition - b.queuePosition;
+        const dateA = a.date || a.bookingDate;
+        const dateB = b.date || b.bookingDate;
+        if (dateA !== dateB) return new Date(dateA) - new Date(dateB);
+        return 0;
     });
 
     return (
@@ -129,9 +147,10 @@ export default function AdminReservations() {
                                     <button 
                                         className="btn btn-primary" 
                                         style={{ padding: '0.4rem 0.8rem', fontSize: '0.75rem' }}
-                                        onClick={() => {
+                                        onClick={async () => {
                                             if (window.confirm('Mark this reservation as Completed?')) {
-                                                completeBooking(b.bookingId);
+                                                await completeBooking(b);
+                                                fetchLiveQueue(); // Refresh DB
                                             }
                                         }}
                                     >

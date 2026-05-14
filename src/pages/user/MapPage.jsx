@@ -61,7 +61,7 @@ function MapRecenter({ center }) {
 
 export default function MapPage() {
     const navigate = useNavigate();
-    const { updateBooking } = useBooking();
+    const { bookingData, updateBooking } = useBooking();
     
     // Core State
     const [branches, setBranches] = useState([]);
@@ -77,7 +77,7 @@ export default function MapPage() {
     
     // Filters
     const [radius, setRadius] = useState(10);
-    const [machineType, setMachineType] = useState('Both');
+    const [machineTypeFilter, setMachineTypeFilter] = useState(bookingData.machineType || 'Both');
     const [minRating, setMinRating] = useState(0);
     const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
 
@@ -143,16 +143,26 @@ export default function MapPage() {
              return haversineDistance(userLoc, b.position) <= radius;
         });
 
-        // 3. Machine Type Filter
-        if (machineType !== 'Both') {
-            results = results.filter(b => (machineType === 'Washer' ? b.machines?.available?.washer > 0 : b.machines?.available?.dryer > 0));
+        // 3. Machine Type Filter (using the selector or the flow choice)
+        const typeToFilter = machineTypeFilter !== 'Both' ? machineTypeFilter : bookingData.machineType;
+        if (typeToFilter && typeToFilter !== 'Both') {
+            results = results.filter(b => (typeToFilter === 'Washer' ? (b.machines?.available?.washer > 0) : (b.machines?.available?.dryer > 0)));
         }
 
-        // 4. Rating Filter
+        // 4. Weight Requirement Filter (Simple check for now: if user asked for machines, branch must have machines of that type)
+        const totalRequired = Object.values(bookingData.machineQuantities || {}).reduce((a, b) => a + b, 0);
+        if (totalRequired > 0) {
+            results = results.filter(b => {
+                const available = typeToFilter === 'Dryer' ? (b.machines?.available?.dryer || 0) : (b.machines?.available?.washer || 0);
+                return available >= totalRequired;
+            });
+        }
+
+        // 5. Rating Filter
         results = results.filter(b => b.rating >= minRating);
 
         setFilteredBranches(results);
-    }, [radius, machineType, minRating, branches, userLoc, searchTerm, selectedDate]);
+    }, [radius, machineTypeFilter, minRating, branches, userLoc, searchTerm, selectedDate, bookingData]);
 
     // Handlers
     const handleLocate = () => {
@@ -165,7 +175,7 @@ export default function MapPage() {
 
     const handleResetFilters = () => {
         setRadius(10);
-        setMachineType('Both');
+        setMachineTypeFilter('Both');
         setMinRating(0);
         setSearchTerm('');
         setSelectedDate(new Date().toISOString().split('T')[0]);
@@ -175,24 +185,54 @@ export default function MapPage() {
         const distance = haversineDistance(userLoc, branch.position);
         const travelTime = Math.round((distance / 30) * 60); // minutes at 30km/h
 
+        // Map the user's weight/quantity requirements to actual machines in this branch
+        const selectedMachines = [];
+        const quantities = bookingData.machineQuantities || {};
+        const branchMachines = branch.machines?.list || []; // Assuming there's a list
+
+        Object.entries(quantities).forEach(([weight, qty]) => {
+            if (qty > 0) {
+                // Find machines in branch that match this weight (or just find any available)
+                const matching = branchMachines.filter(m => 
+                    m.type === bookingData.machineType && 
+                    (m.capacity === weight || !m.capacity) // Match weight if possible
+                ).slice(0, qty);
+
+                // If we don't have a list or not enough matches, create mock ones for the flow
+                if (matching.length < qty) {
+                    for(let i=matching.length; i<qty; i++) {
+                        selectedMachines.push({
+                            id: `MOCK-${weight}-${i}-${Date.now()}`,
+                            name: `${bookingData.machineType} ${weight}`,
+                            capacity: weight,
+                            price: branch.basePrice || 500
+                        });
+                    }
+                }
+                selectedMachines.push(...matching);
+            }
+        });
+
         if (branch.status === 'Red') {
             const confirmQueue = window.confirm(`This laundry is currently busy. Estimated travel time is ${travelTime} mins. A slot is expected to be free around that time. Would you like to join the queue? \n\nNote: You must arrive within ${travelTime + 5} mins or your slot will go to the next person.`);
             
             if (confirmQueue) {
                 updateBooking('branch', branch);
                 updateBooking('date', selectedDate);
+                updateBooking('selectedMachines', selectedMachines);
                 updateBooking('isQueued', true);
                 updateBooking('estimatedArrival', travelTime);
                 alert("You've been added to the queue! Proceed to select your slots.");
-                navigate('/machine-date');
+                navigate('/time-availability');
             }
             return;
         }
 
         updateBooking('branch', branch);
-        updateBooking('date', selectedDate); // Save date choice
+        updateBooking('date', selectedDate); 
+        updateBooking('selectedMachines', selectedMachines);
         updateBooking('isQueued', false);
-        navigate('/machine-date');
+        navigate('/time-availability');
     };
 
     const getTravelInfo = (branch) => {
@@ -270,10 +310,10 @@ export default function MapPage() {
                             {['Both', 'Washer', 'Dryer'].map(type => (
                                 <label 
                                     key={type} 
-                                    className={`filter-option-card ${machineType === type ? 'selected' : ''}`}
-                                    onClick={() => setMachineType(type)}
+                                    className={`filter-option-card ${machineTypeFilter === type ? 'selected' : ''}`}
+                                    onClick={() => setMachineTypeFilter(type)}
                                 >
-                                    <input type="radio" name="mt" checked={machineType === type} readOnly style={{ accentColor: 'var(--primary)' }} />
+                                    <input type="radio" name="mt" checked={machineTypeFilter === type} readOnly style={{ accentColor: 'var(--primary)' }} />
                                     <span style={{ fontWeight: '600' }}>{type === 'Both' ? 'All Types' : type}</span>
                                 </label>
                             ))}

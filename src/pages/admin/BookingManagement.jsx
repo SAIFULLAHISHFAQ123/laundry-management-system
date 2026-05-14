@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import '../../styles/admin.css';
+import { useBooking } from '../../context/BookingContext';
 
 export default function BookingManagement() {
+    const { triggerRatingPrompt } = useBooking();
     const [bookings, setBookings] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
@@ -39,10 +41,20 @@ export default function BookingManagement() {
             });
 
             if (res.ok) {
+                const targetBooking = bookings.find(b => b.bookingId === id || b.id === id);
+                if (newStatus === 'Completed' && targetBooking) {
+                    const userId = targetBooking.userId || 101;
+                    triggerRatingPrompt(id, targetBooking.laundryId || 1, userId, `User #${userId}`, 'Admin');
+                }
                 setBookings(bookings.map(b => (b.bookingId === id || b.id === id) ? { ...b, status: newStatus } : b));
             } else {
                 // Local fallback update
                 const stored = JSON.parse(localStorage.getItem('laundry_reservations') || '[]');
+                const targetBooking = stored.find(b => b.bookingId === id || b.id === id);
+                if (newStatus === 'Completed' && targetBooking) {
+                    const userId = targetBooking.userId || 101;
+                    triggerRatingPrompt(id, targetBooking.laundryId || 1, userId, `User #${userId}`, 'Admin');
+                }
                 const updated = stored.map(b => b.bookingId === id ? { ...b, status: newStatus } : b);
                 localStorage.setItem('laundry_reservations', JSON.stringify(updated));
                 setBookings([...updated].reverse());

@@ -14,15 +14,17 @@ import Register from "./pages/auth/Register";
 import ForgotPassword from "./pages/auth/ForgotPassword";
 
 // USER FLOW
-import MapPage from "./pages/user/MapPage";
-import MachineDate from "./pages/user/MachineDate";
-import TimeAvailability from "./pages/user/TimeAvailability";
+import MachineType from "./pages/user/MachineType";
 import ClothType from "./pages/user/ClothType";
+import MachineSelection from "./pages/user/MachineSelection";
+import MapPage from "./pages/user/MapPage";
+import TimeAvailability from "./pages/user/TimeAvailability";
 import Detergent from "./pages/user/Detergent";
-import MachineDetail from "./pages/user/MachineDetail";
 import Cart from "./pages/user/Cart";
 import Checkout from "./pages/user/Checkout";
 import BookingConfirmation from "./pages/user/BookingConfirmation";
+import MachineDate from "./pages/user/MachineDate";
+import MachineDetail from "./pages/user/MachineDetail";
 import Reservations from "./pages/user/Reservations";
 import Notifications from "./pages/user/Notifications";
 import Profile from "./pages/user/Profile";
@@ -39,6 +41,7 @@ import AdminNotifications from "./pages/admin/AdminNotifications";
 import AddMachineProgram from "./pages/admin/AddMachineProgram";
 import MachineProgramManagement from "./pages/admin/MachineProgramManagement";
 import UserManagement from "./pages/admin/UserManagement";
+import Ratings from "./pages/admin/Ratings";
 export default function App() {
   console.log("App: Rendering...");
   return (
@@ -51,18 +54,22 @@ export default function App() {
         
         {/* User Protected Flow */}
         <Route element={<UserLayout />}>
-          <Route path="/home" element={<MapPage />} />
-          <Route path="/machine-date" element={<MachineDate />} />
-          <Route path="/time-availability" element={<TimeAvailability />} />
+          <Route path="/machine-type" element={<MachineType />} />
           <Route path="/cloth-type" element={<ClothType />} />
+          <Route path="/machine-selection" element={<MachineSelection />} />
+          <Route path="/home" element={<MapPage />} />
+          <Route path="/time-availability" element={<TimeAvailability />} />
           <Route path="/detergent" element={<Detergent />} />
-          <Route path="/machine-detail" element={<MachineDetail />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/booking-confirmation" element={<BookingConfirmation />} />
           <Route path="/reservations" element={<Reservations />} />
           <Route path="/notifications" element={<Notifications />} />
           <Route path="/profile" element={<Profile />} />
+          
+          {/* Keep these for now but they aren't in the main flow */}
+          <Route path="/machine-date" element={<MachineDate />} />
+          <Route path="/machine-detail" element={<MachineDetail />} />
         </Route>
 
         {/* Admin Protected Flow */}
@@ -80,6 +87,7 @@ export default function App() {
           <Route path="reservations" element={<AdminReservations />} />
           <Route path="notifications" element={<AdminNotifications />} />
           <Route path="users" element={<UserManagement />} />
+          <Route path="ratings" element={<Ratings />} />
         </Route>
 
         {/* Fallback */}

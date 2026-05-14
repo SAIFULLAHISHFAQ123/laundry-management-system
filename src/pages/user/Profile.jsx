@@ -66,6 +66,12 @@ export default function Profile() {
                 }
             });
 
+            if (res.status === 401) {
+                localStorage.clear();
+                window.location.href = '/';
+                return;
+            }
+
             if (res.ok) {
                 const data = await res.json();
                 const userData = {

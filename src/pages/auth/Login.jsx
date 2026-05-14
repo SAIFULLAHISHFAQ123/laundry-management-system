@@ -43,7 +43,7 @@ export default function Login() {
         localStorage.setItem("role", "User");
         localStorage.setItem("user_email", email);
         localStorage.setItem("user_name", "Saifullah Ishfaq");
-        navigate("/home");
+        navigate("/machine-type");
         return;
       }
       // Normal API login
@@ -73,7 +73,7 @@ export default function Login() {
       localStorage.setItem("user_name", data.name || "Standard User");
 
       if (data.role === "Admin") navigate("/admin");
-      else navigate("/home");
+      else navigate("/machine-type");
 
     } catch (err) {
       setError(err.message);

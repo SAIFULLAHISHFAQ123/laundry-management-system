@@ -14,13 +14,7 @@ export default function ClothType() {
 
   // LOAD PROGRAMS FROM API
   useEffect(() => {
-
     fetchPrograms();
-
-    if (!bookingData.branch) {
-      navigate('/home');
-    }
-
   }, []);
 
   const fetchPrograms = async () => {
@@ -76,7 +70,7 @@ export default function ClothType() {
 
     updateBooking('clothType', selectedProgram);
 
-    navigate('/machine-detail');
+    navigate('/machine-selection');
   };
 
     return (
@@ -173,11 +167,11 @@ export default function ClothType() {
 
                 {/* Footer Actions */}
                 <div className="flex-between" style={{ marginTop: '3rem', paddingTop: '2rem', borderTop: '2px dashed var(--border)' }}>
-                    <button className="btn btn-outline" onClick={() => navigate('/home')} style={{ padding: '0.75rem 2rem' }}>
-                        ← Back to Map
+                    <button className="btn btn-outline" onClick={() => navigate('/machine-type')} style={{ padding: '0.75rem 2rem' }}>
+                        ← Back
                     </button>
                     <button className="btn btn-primary" onClick={handleNext} style={{ padding: '0.75rem 2.5rem', fontSize: '1.1rem' }}>
-                        Next Step: Select Machines →
+                        Next Step: Machine Weight →
                     </button>
                 </div>
             </div>

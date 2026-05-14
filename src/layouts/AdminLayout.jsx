@@ -16,6 +16,7 @@ export default function AdminLayout() {
         { path: '/admin/users', label: 'Manage Users', icon: '👥' },
         { path: '/admin/reservations', label: 'Analytics', icon: '📈' },
         { path: '/admin/notifications', label: 'Alerts', icon: '🔔' },
+        { path: '/admin/ratings', label: 'Ratings', icon: '⭐' },
     ];
 
     const handleLogout = () => {
